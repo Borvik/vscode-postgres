@@ -30,7 +30,10 @@ connection.onInitialize((_params) : InitializeResult => {
       textDocumentSync: documents.syncKind,
       completionProvider: {
         resolveProvider: true,
-        
+        // triggerCharacters: []
+      },
+      signatureHelpProvider: {
+        triggerCharacters: ['(', ',']
       }
     }
   }

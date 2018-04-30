@@ -35,6 +35,13 @@
         "configuration": "./language-configuration.json"
       }
     ],
+    "grammars": [
+      {
+        "language": "postgres",
+        "scopeName": "source.pgsql",
+        "path": "./syntaxes/pgsql.tmLanguage"
+      }
+    ],
     "configuration": {
       "type": "object",
       "title": "PostgreSQL",
