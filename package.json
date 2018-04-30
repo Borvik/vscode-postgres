@@ -4,6 +4,10 @@
   "description": "PostgreSQL Management Tool",
   "version": "0.0.5",
   "publisher": "ckolkman",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/Borvik/vscode-postgres.git"
+  },
   "engines": {
     "vscode": "^1.22.0"
   },
