@@ -84,7 +84,8 @@ export class Database {
           }
         });
       });
-      OutputChannel.displayResults(resultsUri, 'Results: ' + title, results);
+      await OutputChannel.displayResults(resultsUri, 'Results: ' + title, results);
+      vscode.window.showTextDocument(editor.document);
     } catch(err) {
       OutputChannel.appendLine(err);
     } finally {

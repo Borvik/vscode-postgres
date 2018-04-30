@@ -15,6 +15,7 @@ export class PreviewProvider implements vscode.TextDocumentContentProvider {
   get onDidChange(): vscode.Event<vscode.Uri> { return this._onDidChange.event; }
 
   public update(uri: vscode.Uri, newResults: QueryResults[]): void {
+    newResults = newResults.filter((result: QueryResults) => result.fields && result.fields.length);
     this._queryResultsMap.set(uri.toString(), newResults);
     this._onDidChange.fire(uri);
   }
@@ -132,5 +133,11 @@ export class PreviewProvider implements vscode.TextDocumentContentProvider {
 
     let timeNow = new Date().getTime();
     return html + '</body></html>';
+  }
+
+  public getResultData(uri: vscode.Uri): QueryResults[] {
+    let url = uri.toString();
+    if (!this._queryResultsMap.has(url)) return null;
+    return this._queryResultsMap.get(url);
   }
 }

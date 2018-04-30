@@ -2,11 +2,11 @@
   "name": "vscode-postgres",
   "displayName": "PostgreSQL",
   "description": "PostgreSQL Management Tool",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "publisher": "ckolkman",
   "repository": {
     "type": "git",
-    "url": "git://github.com/Borvik/vscode-postgres.git"
+    "url": "https://github.com/Borvik/vscode-postgres.git"
   },
   "engines": {
     "vscode": "^1.22.0"
@@ -97,9 +97,25 @@
         "command": "vscode-postgres.runQuery",
         "title": "Run Query",
         "category": "PostgreSQL"
+      },
+      {
+        "command": "vscode-postgres.saveResult",
+        "title": "Save Result",
+        "category": "PostgreSQL",
+        "icon": {
+          "light": "./resources/light/save.svg",
+          "dark": "./resources/dark/save.svg"
+        }
       }
     ],
     "menus": {
+      "editor/title": [
+        {
+          "command": "vscode-postgres.saveResult",
+          "when": "resourceScheme == postgres-results",
+          "group": "navigation"
+        }
+      ],
       "view/title": [
         {
           "command": "vscode-postgres.addConnection",
@@ -123,6 +139,10 @@
         {
           "command": "vscode-postgres.runQuery",
           "when": "editorFocus && editorLangId == postgres"
+        },
+        {
+          "command": "vscode-postgres.saveResult",
+          "when": "config.vscode-postgres.never"
         }
       ],
       "editor/context": [
@@ -208,6 +228,7 @@
     "test": "npm run compile && node ./node_modules/vscode/bin/test"
   },
   "devDependencies": {
+    "@types/csv-stringify": "^1.4.2",
     "@types/keytar": "^4.0.1",
     "@types/mocha": "^2.2.42",
     "@types/node": "^7.0.43",

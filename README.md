@@ -1,66 +1,37 @@
-# vscode-postgres README
+# PostgreSQL
 
 This project is still in beta stage, as I transition from my old code-base and flush out the features that I have planned for it.  As such some features are placeholders, or are missing.
 
+Management and query tool for PostgreSQL databases.
+
+## Planned Features
+
+* Syntax Highlighting
+* Code Completion
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+* Management of PostgreSQL connections
+* List Servers/Database/Tables/Columns (primary key/type)
+* Quickly select top * (with limit) of a table
+* Run Queries
+  * All queries in a pgsql file (; delimited)
+  * Selected query in pgsql file
+  * Selected query in ANY file (via context menu or command palette)
+* Individual editors can have different connections
+* Quickly change connection database by clicking the DB in the status bar
 
-For example if there is an image subfolder under your extension project workspace:
+## Usage
 
-\!\[feature X\]\(images/feature-x.png\)
-
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
-
-## Requirements
-
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+Still working on a usage guide.
 
 ## Extension Settings
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
-
-For example:
-
 This extension contributes the following settings:
 
-* `myExtension.enable`: enable/disable this extension
-* `myExtension.thing`: set to `blah` to do something
+* `vscode-postgres.showExplorer`: enable/disable the database explorer.
+* `vscode-postgres.prettyPrintJSONfields`: set to `true` to enable nicely formatted JSON in the query results window.
 
 ## Known Issues
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
-
-## Release Notes
-
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
------------------------------------------------------------------------------------------------------------
-
-## Working with Markdown
-
-**Note:** You can author your README using Visual Studio Code.  Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on OSX or `Ctrl+\` on Windows and Linux)
-* Toggle preview (`Shift+CMD+V` on OSX or `Shift+Ctrl+V` on Windows and Linux)
-* Press `Ctrl+Space` (Windows, Linux) or `Cmd+Space` (OSX) to see a list of Markdown snippets
-
-### For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+* When database explorer is disabled, it may be impossible to select the server/connection to run queries against.
