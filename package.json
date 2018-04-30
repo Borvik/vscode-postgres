@@ -2,7 +2,7 @@
   "name": "vscode-postgres",
   "displayName": "PostgreSQL",
   "description": "PostgreSQL Management Tool",
-  "version": "0.0.1",
+  "version": "0.0.5",
   "publisher": "ckolkman",
   "engines": {
     "vscode": "^1.22.0"
@@ -12,6 +12,7 @@
   ],
   "activationEvents": [
     "onCommand:vscode-postgres.addConnection",
+    "onCommand:vscode-postgres.newQuery",
     "onLanguage:postgres",
     "onView:postgres"
   ],
@@ -46,6 +47,13 @@
         }
       }
     },
+    "keybindings": [
+      {
+        "command": "vscode-postgres.runQuery",
+        "key": "f5",
+        "when": "editorLangId == postgres"
+      }
+    ],
     "commands": [
       {
         "command": "vscode-postgres.addConnection",
@@ -80,6 +88,11 @@
         "command": "vscode-postgres.selectTop1000",
         "title": "Select Top 1000",
         "category": "PostgreSQL"
+      },
+      {
+        "command": "vscode-postgres.runQuery",
+        "title": "Run Query",
+        "category": "PostgreSQL"
       }
     ],
     "menus": {
@@ -98,6 +111,26 @@
         {
           "command": "vscode-postgres.selectTop1000",
           "when": "config.vscode-postgres.never"
+        },
+        {
+          "command": "vscode-postgres.runQuery",
+          "when": "editorHasSelection && !editorHasMultipleSelections"
+        },
+        {
+          "command": "vscode-postgres.runQuery",
+          "when": "editorFocus && editorLangId == postgres"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "vscode-postgres.runQuery",
+          "when": "editorHasSelection && !editorHasMultipleSelections",
+          "group": "navigation"
+        },
+        {
+          "command": "vscode-postgres.runQuery",
+          "when": "editorLangId == postgres",
+          "group": "navigation"
         }
       ],
       "view/item/context": [

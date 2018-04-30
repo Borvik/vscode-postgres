@@ -1,6 +1,39 @@
 import * as fs from 'fs';
+import * as vscode from 'vscode';
+import * as path from 'path';
 import {Pool, Client, types } from 'pg';
 import { IConnection } from "./IConnection";
+import { OutputChannel } from './outputChannel';
+
+export interface FieldInfo {
+  columnID: number;
+  dataTypeID: number;
+  dataTypeModifier: number;
+  dataTypeSize: number;
+  format: string;
+  name: string;
+  tableID: number;
+};
+
+export interface QueryResults {
+  rowCount: number;
+  command: string;
+  rows?: any[];
+  fields?: FieldInfo[];
+  flaggedForDeletion?: boolean;
+};
+
+export interface TypeResult {
+  oid: number;
+  typname: string;
+};
+
+export interface TypeResults {
+  rowCount: number;
+  command: string;
+  rows?: TypeResult[];
+  fields?: FieldInfo[];
+}
 
 export class Database {
   
@@ -29,5 +62,34 @@ export class Database {
     let client = new Client(connectionOptions);
     await client.connect();
     return client;
+  }
+
+  public static async runQuery(sql: string, editor: vscode.TextEditor, connectionOptions: IConnection) {
+    let uri = editor.document.uri.toString();
+    let title = path.basename(editor.document.fileName);
+    let resultsUri = vscode.Uri.parse('postgres-results://' + uri);
+
+    let connection: Client = null;
+    try {
+      connection = await Database.createConnection(connectionOptions);
+      const types: TypeResults = await connection.query(`select oid, typname from pg_type`);
+      const res: QueryResults | QueryResults[] = await connection.query(sql);
+      const results: QueryResults[] = Array.isArray(res) ? res : [res];
+
+      results.forEach((result) => {
+        result.fields.forEach((field) => {
+          let type = types.rows.find((t) => t.oid === field.dataTypeID);
+          if (type) {
+            field.format = type.typname;
+          }
+        });
+      });
+      OutputChannel.displayResults(resultsUri, 'Results: ' + title, results);
+    } catch(err) {
+      OutputChannel.appendLine(err);
+    } finally {
+      if (connection)
+        await connection.end();
+    }
   }
 }
