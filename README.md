@@ -1,6 +1,7 @@
 # vscode-postgres README
 
-This is the README for your extension "vscode-postgres". After writing up a brief description, we recommend including the following sections.
+This project is still in beta stage, as I transition from my old code-base and flush out the features that I have planned for it.  As such some features are placeholders, or are missing.
+
 
 ## Features
 
