@@ -14,7 +14,7 @@ export default class PostgreSQLLanguageClient {
 
     let serverOptions: ServerOptions = {
       run: { module: serverModule, transport: TransportKind.ipc },
-      debug: { module: serverModule, transport: TransportKind.ipc, options: debugOptions },
+      debug: { module: serverModule, transport: TransportKind.ipc, options: debugOptions }
     };
 
     let clientOptions: LanguageClientOptions = {
