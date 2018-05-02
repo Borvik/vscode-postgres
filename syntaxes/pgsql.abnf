@@ -1,0 +1,6 @@
+commands = command [ semicolon command ]
+command = selectcommand / updatecommand
+updatecommand = "UPDATE"
+selectcommand = "SELECT " [expression ["," expression]]
+expression = "test"
+semicolon = ";"

@@ -23,6 +23,11 @@ export class addConnectionCommand extends BaseCommand {
 
     const port = await vscode.window.showInputBox({ prompt: "The port number to connect to", placeHolder: "port", ignoreFocusOut: true, value: "5432" });
     if (!port) return;
+    const nPort = Number.parseInt(port);
+    if (Number.isNaN(nPort)) {
+      vscode.window.showErrorMessage("The port number specified was not a number");
+      return;
+    }
 
     const certPath = await vscode.window.showInputBox({ prompt: "[Optional] SSL certificate path. Leave empty to ignore", placeHolder: "certificate file path", ignoreFocusOut: true });
     if (certPath === undefined) return;
@@ -31,7 +36,7 @@ export class addConnectionCommand extends BaseCommand {
     if (!connections) connections = {};
 
     const id = uuidv1();
-    connections[id] = { host, user, port, certPath };
+    connections[id] = { host, user, port: nPort, certPath };
 
     if (password) {
       await Global.keytar.setPassword(Constants.ExtensionId, id, password);
