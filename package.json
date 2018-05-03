@@ -9,7 +9,7 @@
     "url": "https://github.com/Borvik/vscode-postgres.git"
   },
   "engines": {
-    "vscode": "^1.22.0"
+    "vscode": "^1.23.0"
   },
   "categories": [
     "Other"
@@ -210,8 +210,17 @@
         }
       ]
     },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "postgres-explorer",
+          "title": "PostgreSQL Explorer",
+          "icon": "resources/postgres-explorer.svg"
+        }
+      ]
+    },
     "views": {
-      "explorer": [
+      "postgres-explorer": [
         {
           "id": "postgres",
           "name": "PostgreSQL",
