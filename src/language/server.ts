@@ -2,7 +2,8 @@ import {
   IPCMessageReader, IPCMessageWriter, createConnection, IConnection,
   TextDocuments, TextDocument, InitializeResult,
   Diagnostic, DiagnosticSeverity, TextDocumentPositionParams,
-  CompletionItem, CompletionItemKind
+  CompletionItem, CompletionItemKind,
+  SignatureHelp, SignatureInformation, ParameterInformation
 } from 'vscode-languageserver';
 import { Client } from 'pg';
 import * as fs from 'fs';
@@ -39,11 +40,13 @@ export interface DBFunctionsRaw {
   name: string
   result_type: string
   argument_types: string
-  type: string
+  type: string,
+  description: string
 }
 
 export interface DBFunctionArgList {
-  args: string[]
+  args: string[],
+  description: string
 }
 
 export interface DBFunction {
@@ -86,7 +89,7 @@ connection.onInitialize((_params) : InitializeResult => {
         triggerCharacters: [' ', '.']
       },
       signatureHelpProvider: {
-        triggerCharacters: ['(', ',']
+        triggerCharacters: ['(']
       }
     }
   }
@@ -104,6 +107,19 @@ async function setupDBConnection(connectionOptions: IDBConnection, uri: string):
         ca: fs.readFileSync(connectionOptions.certPath).toString()
       }
     }
+
+    if (!connectionOptions.database) {
+      connectionOptions = {
+        host: connectionOptions.host,
+        user: connectionOptions.user,
+        password: connectionOptions.password,
+        port: connectionOptions.port,
+        database: 'postgres',
+        multipleStatements: connectionOptions.multipleStatements,
+        certPath: connectionOptions.certPath,
+        ssl: connectionOptions.ssl
+      };
+    }
     
     dbConnection = new Client(connectionOptions);
     await dbConnection.connect();
@@ -112,9 +128,10 @@ async function setupDBConnection(connectionOptions: IDBConnection, uri: string):
     // setup database caches for functions, tables, and fields
     tableCache = [];
     functionCache = [];
-
-    if (connectionOptions.database) {
-      try {
+    
+    try {
+      if (connectionOptions.database) {
+        console.log('Loading Table/Column Cache');
         let tablesAndColumns = await dbConnection.query(`
           SELECT
             tablename,
@@ -135,47 +152,54 @@ async function setupDBConnection(connectionOptions: IDBConnection, uri: string):
           GROUP BY tablename;
           `);
         tableCache = tablesAndColumns.rows;
-
-        let functions = await dbConnection.query(`
-          SELECT n.nspname as "schema",
-            p.proname as "name",
-            pg_catalog.pg_get_function_result(p.oid) as "result_type",
-            pg_catalog.pg_get_function_arguments(p.oid) as "argument_types",
-          CASE
-            WHEN p.proisagg THEN 'agg'
-            WHEN p.proiswindow THEN 'window'
-            WHEN p.prorettype = 'pg_catalog.trigger'::pg_catalog.regtype THEN 'trigger'
-            ELSE 'normal'
-          END as "type"
-          FROM pg_catalog.pg_proc p
-              LEFT JOIN pg_catalog.pg_namespace n ON n.oid = p.pronamespace
-          WHERE pg_catalog.pg_function_is_visible(p.oid)
-            AND p.prorettype <> 'pg_catalog.trigger'::pg_catalog.regtype
-                AND n.nspname <> 'information_schema'
-          ORDER BY 1, 2, 4;
-          `);
-        
-        functions.rows.forEach((fn:DBFunctionsRaw) => {
-          // return new ColumnNode(this.connection, this.table, column);
-          let existing = functionCache.find(f => f.name === fn.name);
-          if (!existing) {
-            existing = {
-              name: fn.name,
-              schema: fn.schema,
-              result_type: fn.result_type,
-              type: fn.type,
-              overloads: []
-            }
-            functionCache.push(existing);
+      }
+    }
+    catch (err) {
+      console.log(err);
+    }
+  
+    try {
+      console.log('Loading Function Cache');
+      let functions = await dbConnection.query(`
+        SELECT n.nspname as "schema",
+          p.proname as "name",
+          d.description,
+          pg_catalog.pg_get_function_result(p.oid) as "result_type",
+          pg_catalog.pg_get_function_arguments(p.oid) as "argument_types",
+        CASE
+          WHEN p.proisagg THEN 'agg'
+          WHEN p.proiswindow THEN 'window'
+          WHEN p.prorettype = 'pg_catalog.trigger'::pg_catalog.regtype THEN 'trigger'
+          ELSE 'normal'
+        END as "type"
+        FROM pg_catalog.pg_proc p
+            LEFT JOIN pg_catalog.pg_namespace n ON n.oid = p.pronamespace
+            LEFT JOIN pg_catalog.pg_description d ON p.oid = d.objoid
+        WHERE pg_catalog.pg_function_is_visible(p.oid)
+          AND p.prorettype <> 'pg_catalog.trigger'::pg_catalog.regtype
+              AND n.nspname <> 'information_schema'
+        ORDER BY 1, 2, 4;
+        `);
+      
+      functions.rows.forEach((fn:DBFunctionsRaw) => {
+        // return new ColumnNode(this.connection, this.table, column);
+        let existing = functionCache.find(f => f.name === fn.name);
+        if (!existing) {
+          existing = {
+            name: fn.name,
+            schema: fn.schema,
+            result_type: fn.result_type,
+            type: fn.type,
+            overloads: []
           }
-          let args = fn.argument_types.split(',').filter(a => a).map<string>(a => a.trim());
-          existing.overloads.push({args});
-        });
-        
-      }
-      catch (err) {
-        let o = err;
-      }
+          functionCache.push(existing);
+        }
+        let args = fn.argument_types.split(',').filter(a => a).map<string>(a => a.trim());
+        existing.overloads.push({args, description: fn.description});
+      });
+    }
+    catch (err) {
+      console.log(err);
     }
 
     if (uri) {
@@ -190,12 +214,14 @@ async function setupDBConnection(connectionOptions: IDBConnection, uri: string):
 
 connection.onRequest('set_connection', async function() {
   let newConnection: ISetConnection = arguments[0];
-  console.log('Set Connection on server:' + JSON.stringify(newConnection));
   if (dbConnection) {
     // kill the connection first
     await dbConnection.end();
   }
-  await setupDBConnection(newConnection.connection, newConnection.documentUri);
+  setupDBConnection(newConnection.connection, newConnection.documentUri)
+  .catch(err => {
+    console.log('GOT ERROR HERE: ' + err.message)
+  });
 });
 
 documents.onDidOpen((change) => {
@@ -211,7 +237,12 @@ async function validateTextDocument(textDocument: TextDocument): Promise<void> {
   // parse and find issues
   if (dbConnection) {
     let sqlText = textDocument.getText();
+    if (!sqlText) {
+      connection.sendDiagnostics({uri: textDocument.uri, diagnostics});
+      return;
+    }
     for (let sql of Validator.prepare_sql(sqlText)) {
+      if (!sql.statement) continue;
       try {
         const results = await dbConnection.query(`EXPLAIN ${sql.statement}`);
       }
@@ -270,24 +301,25 @@ connection.onCompletion((e: any): CompletionItem[] => {
     // triggered via . Character
     // look back and grab the text immediately prior to match to table
     let document = documents.get(e.textDocument.uri);
-    let o = document;
-    let line = document.getText({
-      start: {line: e.position.line, character: 0},
-      end: {line: e.position.line, character: e.position.character}
-    });
-
-    let prevSpace = line.lastIndexOf(' ', e.position.character) + 1;
-    let keyword = line.substring(prevSpace, e.position.character - 1);
-    let table = tableCache.find(t => t.tablename.toLocaleLowerCase() == keyword);
-    if (table) {
-      tableFound = true;
-      table.columns.forEach(field => {
-        items.push({
-          label: field.attname,
-          kind: CompletionItemKind.Property,
-          detail: field.data_type
-        });
+    if (document) {
+      let line = document.getText({
+        start: {line: e.position.line, character: 0},
+        end: {line: e.position.line, character: e.position.character}
       });
+  
+      let prevSpace = line.lastIndexOf(' ', e.position.character) + 1;
+      let keyword = line.substring(prevSpace, e.position.character - 1);
+      let table = tableCache.find(t => t.tablename.toLocaleLowerCase() == keyword.toLocaleLowerCase());
+      if (table) {
+        tableFound = true;
+        table.columns.forEach(field => {
+          items.push({
+            label: field.attname,
+            kind: CompletionItemKind.Property,
+            detail: field.data_type
+          });
+        });
+      }
     }
   }
   if (!tableFound) {
@@ -314,140 +346,40 @@ connection.onCompletion((e: any): CompletionItem[] => {
     });
   }
   return items;
-  return [
-    {
-      label: 'Text',
-      kind: CompletionItemKind.Text,
-      data: 1
-    },
-    {
-      label: 'Method',
-      kind: CompletionItemKind.Method,
-      data: 2
-    },
-    {
-      label: 'Function',
-      kind: CompletionItemKind.Function,
-      data: 3
-    },
-    {
-      label: 'Constructor',
-      kind: CompletionItemKind.Constructor,
-      data: 4
-    },
-    {
-      label: 'Field',
-      kind: CompletionItemKind.Field,
-      data: 5
-    },
-    {
-      label: 'Variable',
-      kind: CompletionItemKind.Variable,
-      data: 6
-    },
-    {
-      label: 'Class',
-      kind: CompletionItemKind.Class,
-      data: 7
-    },
-    {
-      label: 'Interface',
-      kind: CompletionItemKind.Interface,
-      data: 8
-    },
-    {
-      label: 'Module',
-      kind: CompletionItemKind.Module,
-      data: 9
-    },
-    {
-      label: 'Property',
-      kind: CompletionItemKind.Property,
-      data: 10
-    },
-    {
-      label: 'Unit',
-      kind: CompletionItemKind.Unit,
-      data: 11
-    },
-    {
-      label: 'Value',
-      kind: CompletionItemKind.Value,
-      data: 12
-    },
-    {
-      label: 'Enum',
-      kind: CompletionItemKind.Enum,
-      data: 13
-    },
-    {
-      label: 'Keyword',
-      kind: CompletionItemKind.Keyword,
-      data: 14
-    },
-    {
-      label: 'Snippet',
-      kind: CompletionItemKind.Snippet,
-      data: 15
-    },
-    {
-      label: 'Color',
-      kind: CompletionItemKind.Color,
-      data: 16
-    },
-    {
-      label: 'File',
-      kind: CompletionItemKind.File,
-      data: 17
-    },
-    {
-      label: 'Reference',
-      kind: CompletionItemKind.Reference,
-      data: 18
-    },
-    {
-      label: 'Folder',
-      kind: CompletionItemKind.Folder,
-      data: 19
-    },
-    {
-      label: 'EnumMember',
-      kind: CompletionItemKind.EnumMember,
-      data: 20
-    },
-    {
-      label: 'Constant',
-      kind: CompletionItemKind.Constant,
-      data: 21
-    },
-    {
-      label: 'Struct',
-      kind: CompletionItemKind.Struct,
-      data: 22
-    },
-    {
-      label: 'Event',
-      kind: CompletionItemKind.Event,
-      data: 23
-    },
-    {
-      label: 'Operator',
-      kind: CompletionItemKind.Operator,
-      data: 24
-    },
-    {
-      label: 'TypeParameter',
-      kind: CompletionItemKind.TypeParameter,
-      data: 25
-    },
-  ]
 });
 
 // connection.onCompletionResolve((item: CompletionItem): CompletionItem => {
 //   item.detail = `${item.label} details`;
 //   item.documentation = `${item.label} documentation`;
 //   return item;
-// });
+// });  SignatureHelp
+
+connection.onSignatureHelp((positionParams): SignatureHelp => {
+  let document = documents.get(positionParams.textDocument.uri);
+  let activeSignature = null, activeParameter = null, signatures: SignatureInformation[] = [];
+  if (document) {
+    let line = document.getText({
+      start: {line: positionParams.position.line, character: 0},
+      end: {line: positionParams.position.line, character: positionParams.position.character}
+    });
+
+    let prevSpace = line.lastIndexOf(' ', positionParams.position.character) + 1;
+    let keyword = line.substring(prevSpace, positionParams.position.character - 1);
+    let fn = functionCache.find(f => f.name.toLocaleLowerCase() === keyword.toLocaleLowerCase());
+    if (fn) {
+      fn.overloads.forEach(overload => {
+        signatures.push({
+          label: `${fn.name}( ${overload.args.join(', ')} )`,
+          documentation: overload.description,
+          parameters: overload.args.map<ParameterInformation>(v => { return {label: v}; })
+        })
+      });
+      activeSignature = 0;
+      activeParameter = 0;
+    }
+  }
+  return { signatures, activeSignature, activeParameter };
+})
 
 // setup the language service
 connection.listen();
