@@ -1,7 +1,7 @@
 export interface ISqlDetails {
-  readonly statement: string,
-  readonly line: number,
-  readonly column: number,
+  statement: string,
+  line: number,
+  column: number,
   readonly lines: string[]
 };
 
