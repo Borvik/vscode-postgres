@@ -88,7 +88,7 @@ connection.onInitialize((_params) : InitializeResult => {
     capabilities: {
       textDocumentSync: documents.syncKind,
       completionProvider: {
-        triggerCharacters: [' ', '.']
+        triggerCharacters: [' ', '.', '"']
       },
       signatureHelpProvider: {
         triggerCharacters: ['(', ',']
@@ -324,33 +324,84 @@ Yb      Yb   dP  8I  dY 88""       Yb      Yb   dP 88YbdP88 88"""  88  .o 88""  
 */
 connection.onCompletion((e: any): CompletionItem[] => {
   let items: CompletionItem[] = [];
-  let tableFound = false;
-  if (e.context.triggerCharacter === '.') {
-    // triggered via . Character
-    // look back and grab the text immediately prior to match to table
-    let document = documents.get(e.textDocument.uri);
-    if (document) {
-      let line = document.getText({
-        start: {line: e.position.line, character: 0},
-        end: {line: e.position.line, character: e.position.character}
-      });
+  let scenarioFound = false;
+
+  let document = documents.get(e.textDocument.uri);
+  if (!document) return items;
+
+  let iterator = new BackwardIterator(document, e.position.character - 1, e.position.line);
   
-      let prevSpace = line.lastIndexOf(' ', e.position.character) + 1;
-      let keyword = line.substring(prevSpace, e.position.character - 1);
-      let table = tableCache.find(t => t.tablename.toLocaleLowerCase() == keyword.toLocaleLowerCase());
-      if (table) {
-        tableFound = true;
-        table.columns.forEach(field => {
-          items.push({
-            label: field.attname,
-            kind: CompletionItemKind.Property,
-            detail: field.data_type
-          });
-        });
+  // // look back and grab the text immediately prior to match to table
+  // let line = document.getText({
+  //   start: {line: e.position.line, character: 0},
+  //   end: {line: e.position.line, character: e.position.character}
+  // });
+
+  // let prevSpace = line.lastIndexOf(' ', e.position.character - 1) + 1;
+  // let keyword = line.substring(prevSpace, e.position.character - 1);
+
+  if (e.context.triggerCharacter === '"') {
+    let startingQuotedIdent = iterator.isFowardDQuote();
+    if (!startingQuotedIdent) return items;
+
+    iterator.next(); // get passed the starting quote
+    if (iterator.isNextPeriod()) {
+      // probably a field - get the ident
+      let ident = iterator.readIdent();
+      let isQuotedIdent = false;
+      if (ident.match(/^\".*?\"$/)) {
+        isQuotedIdent = true;
+        ident = fixQuotedIdent(ident);
       }
+      let table = tableCache.find(tbl => {
+        return (isQuotedIdent && tbl.tablename === ident) || (!isQuotedIdent && tbl.tablename.toLocaleLowerCase() == ident.toLocaleLowerCase());
+      });
+
+      if (!table) return items;
+      table.columns.forEach(field => {
+        items.push({
+          label: field.attname,
+          kind: CompletionItemKind.Property,
+          detail: field.data_type
+        });
+      });
+    } else {
+      // probably a table - list the tables
+      tableCache.forEach(table => {
+        items.push({
+          label: table.tablename,
+          kind: CompletionItemKind.Class
+        });
+      });
     }
+    return items;
   }
-  if (!tableFound) {
+
+  if (e.context.triggerCharacter === '.') {
+    let ident = iterator.readIdent();
+    let isQuotedIdent = false;
+    if (ident.match(/^\".*?\"$/)) {
+      isQuotedIdent = true;
+      ident = fixQuotedIdent(ident);
+    }
+
+    let table = tableCache.find(tbl => {
+      return (isQuotedIdent && tbl.tablename === ident) || (!isQuotedIdent && tbl.tablename.toLocaleLowerCase() == ident.toLocaleLowerCase());
+    });
+
+    if (table) {
+      table.columns.forEach(field => {
+        items.push({
+          label: field.attname,
+          kind: CompletionItemKind.Property,
+          detail: field.data_type
+        });
+      });
+    }
+    return items;
+  }
+
+  if (!scenarioFound) {
     tableCache.forEach(table => {
       items.push({
         label: table.tablename,
@@ -404,7 +455,7 @@ connection.onSignatureHelp((positionParams): SignatureHelp => {
     if (paramCount < 0) return null;
 
     let ident = iterator.readIdent();
-    if (!ident) return null;
+    if (!ident || ident.match(/^\".*?\"$/)) return null;
 
     let fn = functionCache.find(f => f.name.toLocaleLowerCase() === ident.toLocaleLowerCase());
     if (!fn) return null;
@@ -424,7 +475,11 @@ connection.onSignatureHelp((positionParams): SignatureHelp => {
     activeParameter = Math.min(paramCount, overloads[0].args.length - 1);
   }
   return { signatures, activeSignature, activeParameter };
-})
+});
+
+function fixQuotedIdent(str: string): string {
+  return str.replace(/^\"/, '').replace(/\"$/, '').replace(/\"\"/, '"');
+}
 
 // setup the language service
 connection.listen();

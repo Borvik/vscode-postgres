@@ -10,6 +10,7 @@ var _RCurly = '}'.charCodeAt(0);
 var _LParent = '('.charCodeAt(0);
 var _RParent = ')'.charCodeAt(0);
 var _Comma = ','.charCodeAt(0);
+var _Period = '.'.charCodeAt(0);
 var _Quote = '\''.charCodeAt(0);
 var _DQuote = '"'.charCodeAt(0);
 var _USC = '_'.charCodeAt(0);
@@ -34,7 +35,45 @@ export class BackwardIterator {
   }
 
   public hasNext(): boolean {
-    return this.lineNumber >= 0;
+    return this.lineNumber >= 0 || this.offset >= 0;
+  }
+
+  public isFowardDQuote(): boolean {
+    if (!this.hasForward()) return false;
+    return (this.peekForward() === _DQuote);
+  }
+
+  public isNextDQuote(): boolean {
+    if (!this.hasNext()) return false;
+    return (this.peekNext() === _DQuote);
+  }
+
+  public isNextPeriod(): boolean {
+    if (!this.hasNext()) return false;
+    return (this.peekNext() === _Period);
+  }
+
+  public peekNext(): number {
+    if (this.offset < 0) {
+      if (this.lineNumber > 0) {
+        return _NL;
+      }
+      return BOF;
+    }
+    return this.line.charCodeAt(this.offset);
+  }
+
+  public hasForward(): boolean {
+    return (this.lineNumber < this.lines.length || this.offset < this.line.length);
+  }
+
+  public peekForward(): number {
+    if (this.offset === this.line.length) {
+      if (this.lineNumber === this.lines.length)
+        return BOF;
+      return _NL;
+    }
+    return this.line.charCodeAt(this.offset + 1);
   }
 
   public next(): number {
@@ -89,18 +128,31 @@ export class BackwardIterator {
   }
 
   public readIdent() {
-    let identStarted = false;
+    let identStarted = false, isQuotedIdentifier = false;
     let ident = '';
     while (this.hasNext()) {
       let ch = this.next();
+      if (!identStarted && isQuotedIdentifier && ch === _DQuote) {
+        identStarted = true;
+        continue;
+      }
       if (!identStarted && (ch === _WSB || ch === _TAB || ch == _NL))
         continue;
-        
-      if (this.isIdentPart(ch)) {
+      
+      if (!identStarted && (ch === _DQuote || this.isIdentPart(ch))) {
         identStarted = true;
+        isQuotedIdentifier = (ch === _DQuote);
         ident = String.fromCharCode(ch) + ident;
       } else if (identStarted) {
-        break;
+        if (isQuotedIdentifier) {
+          if (ch === BOF) break;
+          ident = String.fromCharCode(ch) + ident;
+          if (ch === _DQuote) identStarted = false;
+        } else if (!this.isIdentPart(ch)) {
+          break;
+        } else {
+          ident = String.fromCharCode(ch) + ident;
+        }
       }
     }
     return ident;
