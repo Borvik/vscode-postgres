@@ -248,7 +248,7 @@
     "@types/pg": "^7.4.8",
     "@types/uuid": "^3.4.3",
     "typescript": "^2.6.1",
-    "vscode": "^1.1.6"
+    "vscode": "^1.1.17"
   },
   "dependencies": {
     "csv-stringify": "^3.0.0",
