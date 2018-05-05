@@ -138,8 +138,12 @@
       ],
       "commandPalette": [
         {
-          "command": "vscode-postgres.selectConnection",
-          "when": "editorFocus"
+          "command": "vscode-postgres.runQuery",
+          "when": "editorLangId == postgres"
+        },
+        {
+          "command": "vscode-postgres.runQuery",
+          "when": "editorLangId != postgres && editorHasSelection && !editorHasMultipleSelections"
         },
         {
           "command": "vscode-postgres.selectTop",
@@ -150,14 +154,6 @@
           "when": "config.vscode-postgres.never"
         },
         {
-          "command": "vscode-postgres.runQuery",
-          "when": "editorHasSelection && !editorHasMultipleSelections"
-        },
-        {
-          "command": "vscode-postgres.runQuery",
-          "when": "editorFocus && editorLangId == postgres"
-        },
-        {
           "command": "vscode-postgres.saveResult",
           "when": "config.vscode-postgres.never"
         }
@@ -165,7 +161,7 @@
       "editor/context": [
         {
           "command": "vscode-postgres.runQuery",
-          "when": "editorHasSelection && !editorHasMultipleSelections",
+          "when": "editorLangId != postgres && editorHasSelection && !editorHasMultipleSelections",
           "group": "navigation"
         },
         {

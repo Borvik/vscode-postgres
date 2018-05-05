@@ -11,6 +11,13 @@ import { ConnectionQuickPickItem } from "../common/IConnQuickPick";
 
 export class selectConnectionCommand extends BaseCommand {
   async run() {
+    // can we even select a connection it gets stored against a document uri
+    if (!vscode.window || !vscode.window.activeTextEditor || !vscode.window.activeTextEditor.document || !vscode.window.activeTextEditor.document.uri) {
+      // alert and return;
+      vscode.window.showWarningMessage('Unable to select a connection - a document is not active');
+      return;
+    }
+
     let connections = Global.context.globalState.get<{ [key: string]: IConnection }>(Constants.GlobalStateKey);
     if (!connections) connections = {};
 
