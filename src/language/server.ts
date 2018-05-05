@@ -61,6 +61,7 @@ export interface DBFunction {
 let tableCache: DBTable[] = [];
 let functionCache: DBFunction[] = [];
 let keywordCache: string[] = [];
+let databaseCache: string[] = [];
 
 /**
  * To Debug the language server
@@ -108,6 +109,7 @@ function dbConnectionEnded() {
   tableCache = [];
   functionCache = [];
   keywordCache = [];
+  databaseCache = [];
 }
 
 async function setupDBConnection(connectionOptions: IDBConnection, uri: string): Promise<void> {
@@ -136,85 +138,7 @@ async function setupDBConnection(connectionOptions: IDBConnection, uri: string):
     await dbConnection.connect();
     dbConnection.on('end', dbConnectionEnded);
 
-    // setup database caches for functions, tables, and fields
-    try {
-      if (connectionOptions.database) {
-        let tablesAndColumns = await dbConnection.query(`
-          SELECT
-            tablename,
-            json_agg(a) as columns
-          FROM
-            pg_tables
-            LEFT JOIN (
-              SELECT
-                attrelid,
-                attname,
-                format_type(atttypid, atttypmod) as data_type,
-                attnum,
-                attisdropped
-              FROM
-                pg_attribute
-            ) as a ON (a.attrelid = pg_tables.tablename::regclass AND a.attnum > 0 AND NOT a.attisdropped)
-          WHERE schemaname not in ('information_schema', 'pg_catalog')
-          GROUP BY tablename;
-          `);
-        tableCache = tablesAndColumns.rows;
-      }
-    }
-    catch (err) {
-      console.log(err);
-    }
-  
-    try {
-      let functions = await dbConnection.query(`
-        SELECT n.nspname as "schema",
-          p.proname as "name",
-          d.description,
-          pg_catalog.pg_get_function_result(p.oid) as "result_type",
-          pg_catalog.pg_get_function_arguments(p.oid) as "argument_types",
-        CASE
-          WHEN p.proisagg THEN 'agg'
-          WHEN p.proiswindow THEN 'window'
-          WHEN p.prorettype = 'pg_catalog.trigger'::pg_catalog.regtype THEN 'trigger'
-          ELSE 'normal'
-        END as "type"
-        FROM pg_catalog.pg_proc p
-            LEFT JOIN pg_catalog.pg_namespace n ON n.oid = p.pronamespace
-            LEFT JOIN pg_catalog.pg_description d ON p.oid = d.objoid
-        WHERE pg_catalog.pg_function_is_visible(p.oid)
-          AND p.prorettype <> 'pg_catalog.trigger'::pg_catalog.regtype
-              AND n.nspname <> 'information_schema'
-        ORDER BY 1, 2, 4;
-        `);
-      
-      functions.rows.forEach((fn:DBFunctionsRaw) => {
-        // return new ColumnNode(this.connection, this.table, column);
-        let existing = functionCache.find(f => f.name === fn.name);
-        if (!existing) {
-          existing = {
-            name: fn.name,
-            schema: fn.schema,
-            result_type: fn.result_type,
-            type: fn.type,
-            overloads: []
-          }
-          functionCache.push(existing);
-        }
-        let args = fn.argument_types.split(',').filter(a => a).map<string>(a => a.trim());
-        existing.overloads.push({args, description: fn.description});
-      });
-    }
-    catch (err) {
-      console.log(err);
-    }
-
-    try {
-      let keywords = await dbConnection.query(`select * from pg_get_keywords();`);
-      keywordCache = keywords.rows.map<string>(rw => rw.word.toLocaleUpperCase());
-    }
-    catch (err) {
-      console.log(err);
-    }
+    loadCompletionCache(connectionOptions);
 
     if (uri) {
       let document = documents.get(uri);
@@ -224,6 +148,97 @@ async function setupDBConnection(connectionOptions: IDBConnection, uri: string):
     }
   }
   dbConnOptions = connectionOptions;
+}
+
+async function loadCompletionCache(connectionOptions: IDBConnection) {
+  if (!connectionOptions || !dbConnection) return;
+  // setup database caches for functions, tables, and fields
+  try {
+    if (connectionOptions.database) {
+      let tablesAndColumns = await dbConnection.query(`
+        SELECT
+          tablename,
+          json_agg(a) as columns
+        FROM
+          pg_tables
+          LEFT JOIN (
+            SELECT
+              attrelid,
+              attname,
+              format_type(atttypid, atttypmod) as data_type,
+              attnum,
+              attisdropped
+            FROM
+              pg_attribute
+          ) as a ON (a.attrelid = pg_tables.tablename::regclass AND a.attnum > 0 AND NOT a.attisdropped)
+        WHERE schemaname not in ('information_schema', 'pg_catalog')
+        GROUP BY tablename;
+        `);
+      tableCache = tablesAndColumns.rows;
+    }
+  }
+  catch (err) {
+    console.log(err);
+  }
+
+  try {
+    let functions = await dbConnection.query(`
+      SELECT n.nspname as "schema",
+        p.proname as "name",
+        d.description,
+        pg_catalog.pg_get_function_result(p.oid) as "result_type",
+        pg_catalog.pg_get_function_arguments(p.oid) as "argument_types",
+      CASE
+        WHEN p.proisagg THEN 'agg'
+        WHEN p.proiswindow THEN 'window'
+        WHEN p.prorettype = 'pg_catalog.trigger'::pg_catalog.regtype THEN 'trigger'
+        ELSE 'normal'
+      END as "type"
+      FROM pg_catalog.pg_proc p
+          LEFT JOIN pg_catalog.pg_namespace n ON n.oid = p.pronamespace
+          LEFT JOIN pg_catalog.pg_description d ON p.oid = d.objoid
+      WHERE pg_catalog.pg_function_is_visible(p.oid)
+        AND p.prorettype <> 'pg_catalog.trigger'::pg_catalog.regtype
+            AND n.nspname <> 'information_schema'
+      ORDER BY 1, 2, 4;
+      `);
+    
+    functions.rows.forEach((fn:DBFunctionsRaw) => {
+      // return new ColumnNode(this.connection, this.table, column);
+      let existing = functionCache.find(f => f.name === fn.name);
+      if (!existing) {
+        existing = {
+          name: fn.name,
+          schema: fn.schema,
+          result_type: fn.result_type,
+          type: fn.type,
+          overloads: []
+        }
+        functionCache.push(existing);
+      }
+      let args = fn.argument_types.split(',').filter(a => a).map<string>(a => a.trim());
+      existing.overloads.push({args, description: fn.description});
+    });
+  }
+  catch (err) {
+    console.log(err);
+  }
+
+  try {
+    let keywords = await dbConnection.query(`select * from pg_get_keywords();`);
+    keywordCache = keywords.rows.map<string>(rw => rw.word.toLocaleUpperCase());
+  }
+  catch (err) {
+    console.log(err);
+  }
+
+  try {
+    let databases = await dbConnection.query(`SELECT datname FROM pg_database WHERE datistemplate = false;`);
+    databaseCache = databases.rows.map<string>(rw => rw.datname);
+  }
+  catch (err) {
+    console.log(err);
+  }
 }
 
 connection.onRequest('set_connection', async function() {
@@ -426,7 +441,7 @@ connection.onCompletion((e: any): CompletionItem[] => {
         } else {
           items.push({
             label: field.attname,
-            kind: CompletionItemKind.Property,
+            kind: CompletionItemKind.Field,
             detail: field.data_type,
             documentation: table.tablename
           });
@@ -447,6 +462,12 @@ connection.onCompletion((e: any): CompletionItem[] => {
         kind: CompletionItemKind.Keyword
       });
     });
+    databaseCache.forEach(database => {
+      items.push({
+        label: database,
+        kind: CompletionItemKind.Module
+      });
+    })
   }
   return items;
 });
