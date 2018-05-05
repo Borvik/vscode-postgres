@@ -15,6 +15,7 @@
     "Other"
   ],
   "activationEvents": [
+    "onCommand:vscode-postgres.selectConnection",
     "onCommand:vscode-postgres.addConnection",
     "onCommand:vscode-postgres.newQuery",
     "onLanguage:postgres",
@@ -81,6 +82,11 @@
         "category": "PostgreSQL"
       },
       {
+        "command": "vscode-postgres.selectConnection",
+        "title": "Select Connection",
+        "category": "PostgreSQL"
+      },
+      {
         "command": "vscode-postgres.newQuery",
         "title": "New Query",
         "category": "PostgreSQL"
@@ -131,6 +137,10 @@
         }
       ],
       "commandPalette": [
+        {
+          "command": "vscode-postgres.selectConnection",
+          "when": "editorFocus"
+        },
         {
           "command": "vscode-postgres.selectTop",
           "when": "config.vscode-postgres.never"

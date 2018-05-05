@@ -41,6 +41,11 @@ export class EditorState {
     EditorState.getInstance().onDidChangeActiveTextEditor(te);
   }
 
+  public static setNonActiveConnection(doc: vscode.TextDocument, newConn: IConnection) {
+    if (!doc && !doc.uri) return;
+    EditorState.getInstance().metadata.set(doc.uri.toString(), newConn);
+  }
+
   onDidChangeActiveTextEditor(e: vscode.TextEditor) {
     let conn: IConnection = e && e.document && e.document.uri ? this.metadata.get(e.document.uri.toString()) : null;
     this.languageClient.setConnection(conn);
@@ -60,7 +65,7 @@ export class EditorState {
     }
     
     this.statusBarServer.text = `$(server) ${conn.host}`;
-    this.statusBarServer.command = 'vscode-postgres.selectDatabase';
+    this.statusBarServer.command = 'vscode-postgres.selectConnection';
     this.statusBarServer.show();
 
     if (!conn.database) {
@@ -81,7 +86,15 @@ export class EditorState {
 
   removeStatusButtons() {
     if (this.statusBarDatabase) this.statusBarDatabase.hide();
-    if (this.statusBarServer) this.statusBarServer.hide();
+
+    if (!this.statusBarServer) {
+      this.statusBarServer = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
+      this.statusBarServer.tooltip = 'Change Active Server';
+    }
+    
+    this.statusBarServer.text = `$(server) Select Postgres Server`;
+    this.statusBarServer.command = 'vscode-postgres.selectConnection';
+    this.statusBarServer.show();
   }
 
   onDidCloseTextDocument(e: vscode.TextDocument) {

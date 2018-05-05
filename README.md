@@ -4,11 +4,6 @@ This project is still in beta stage, as I transition from my old code-base and f
 
 Management and query tool for PostgreSQL databases.
 
-## Planned Features
-
-* Syntax Highlighting
-* Code Completion
-
 ## Features
 
 * Management of PostgreSQL connections
@@ -20,6 +15,10 @@ Management and query tool for PostgreSQL databases.
   * Selected query in ANY file (via context menu or command palette)
 * Individual editors can have different connections
 * Quickly change connection database by clicking the DB in the status bar
+* Syntax Highlighting
+* Connection aware code completion (keywords, functions, tables, and fields)
+* In-line error detection powered by EXPLAIN (one error per query in editor)
+* *__Basic__* function signature support (connection aware)
 
 ## Usage
 
@@ -34,4 +33,4 @@ This extension contributes the following settings:
 
 ## Known Issues
 
-* When database explorer is disabled, it may be impossible to select the server/connection to run queries against.
+* VS Code 1.23 appears to have a bug with "when" contexts for commands.  This is preventing the "Select Connection" to be hidden all the time and "Run Query" commands to only show when there is selected text (even with multi-selection, which it shouldn't).

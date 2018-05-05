@@ -103,7 +103,13 @@ connection.onInitialize((_params) : InitializeResult => {
 o.`Y8b 88""     88   Y8   8P 88"""       8I  dY 88""Yb     Yb       dP__Yb  Yb      888888 88""   
 8bodP' 888888   88   `YbodP' 88         8888Y"  88oodP      YboodP dP""""Yb  YboodP 88  88 888888 
 */
-function dbConnectionEnded() { dbConnection = null; }
+function dbConnectionEnded() {
+  dbConnection = null;
+  tableCache = [];
+  functionCache = [];
+  keywordCache = [];
+}
+
 async function setupDBConnection(connectionOptions: IDBConnection, uri: string): Promise<void> {
   if (connectionOptions) {
     // dbConnection = await Database.createConnection(conn);
@@ -131,9 +137,6 @@ async function setupDBConnection(connectionOptions: IDBConnection, uri: string):
     dbConnection.on('end', dbConnectionEnded);
 
     // setup database caches for functions, tables, and fields
-    tableCache = [];
-    functionCache = [];
-    
     try {
       if (connectionOptions.database) {
         let tablesAndColumns = await dbConnection.query(`
@@ -225,6 +228,15 @@ async function setupDBConnection(connectionOptions: IDBConnection, uri: string):
 
 connection.onRequest('set_connection', async function() {
   let newConnection: ISetConnection = arguments[0];
+  if (!dbConnOptions && !newConnection.connection) {
+    // neither has a connection - just exist
+    return;
+  }
+  if (dbConnOptions && newConnection.connection && newConnection.connection.host === dbConnOptions.host && newConnection.connection.database === dbConnOptions.database && newConnection.connection.port === dbConnOptions.port && newConnection.connection.user === dbConnOptions.user) {
+    // same connection - just exit
+    return;
+  }
+
   if (dbConnection) {
     // kill the connection first
     await dbConnection.end();

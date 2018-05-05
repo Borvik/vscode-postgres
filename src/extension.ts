@@ -41,7 +41,13 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider('postgres-results', PreviewProvider.Instance));
   vscode.workspace.onDidCloseTextDocument(params => {
     PreviewProvider.Instance.onDidCloseTextDocument(params);
-  })
+  });
+
+  vscode.workspace.onDidOpenTextDocument((e: vscode.TextDocument) => {
+    EditorState.setNonActiveConnection(e, null);
+  });
+
+  // EditorState.connection = null;
 }
 
 // this method is called when your extension is deactivated
