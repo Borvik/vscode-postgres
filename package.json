@@ -15,6 +15,7 @@
     "Other"
   ],
   "activationEvents": [
+    "onCommand:vscode-postgres.selectConnection",
     "onCommand:vscode-postgres.addConnection",
     "onCommand:vscode-postgres.newQuery",
     "onLanguage:postgres",
@@ -33,6 +34,13 @@
           "Postgres"
         ],
         "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "postgres",
+        "scopeName": "source.pgsql",
+        "path": "./syntaxes/pgsql.tmLanguage"
       }
     ],
     "configuration": {
@@ -71,6 +79,11 @@
       {
         "command": "vscode-postgres.deleteConnection",
         "title": "Delete Connection",
+        "category": "PostgreSQL"
+      },
+      {
+        "command": "vscode-postgres.selectConnection",
+        "title": "Select Connection",
         "category": "PostgreSQL"
       },
       {
@@ -125,20 +138,20 @@
       ],
       "commandPalette": [
         {
+          "command": "vscode-postgres.runQuery",
+          "when": "editorLangId == postgres"
+        },
+        {
+          "command": "vscode-postgres.runQuery",
+          "when": "editorLangId != postgres && editorHasSelection && !editorHasMultipleSelections"
+        },
+        {
           "command": "vscode-postgres.selectTop",
           "when": "config.vscode-postgres.never"
         },
         {
           "command": "vscode-postgres.selectTop1000",
           "when": "config.vscode-postgres.never"
-        },
-        {
-          "command": "vscode-postgres.runQuery",
-          "when": "editorHasSelection && !editorHasMultipleSelections"
-        },
-        {
-          "command": "vscode-postgres.runQuery",
-          "when": "editorFocus && editorLangId == postgres"
         },
         {
           "command": "vscode-postgres.saveResult",
@@ -148,7 +161,7 @@
       "editor/context": [
         {
           "command": "vscode-postgres.runQuery",
-          "when": "editorHasSelection && !editorHasMultipleSelections",
+          "when": "editorLangId != postgres && editorHasSelection && !editorHasMultipleSelections",
           "group": "navigation"
         },
         {
