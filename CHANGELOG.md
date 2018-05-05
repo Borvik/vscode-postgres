@@ -2,6 +2,8 @@
 All notable changes to the "vscode-postgres" extension will be documented in this file.
 
 ## [Unreleased]
+
+## [1.0.0] - 2018-05-05
 ### Fixed
 - Connection button, now properly asks for the connection instead of the database.
 
