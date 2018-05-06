@@ -18,6 +18,9 @@ export class OutputChannel {
         case 'UPDATE': OutputChannel.appendLine(result.rowCount + ' rows updated'); break;
         case 'CREATE': OutputChannel.appendLine(result.rowCount + ' rows created'); break;
         case 'DELETE': OutputChannel.appendLine(result.rowCount + ' rows deleted'); break;
+        case 'EXPLAIN':
+          result.rows.forEach(row => OutputChannel.appendLine(row['QUERY PLAN'], true));
+          break;
         case 'SELECT':
           hasSelectResult = true;
           OutputChannel.appendLine(result.rowCount + ' rows selected'); break;

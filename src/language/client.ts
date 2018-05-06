@@ -3,6 +3,7 @@ import * as vscode from 'vscode';
 import { LanguageClient, ServerOptions, TransportKind, LanguageClientOptions } from 'vscode-languageclient';
 import { ExtensionContext } from 'vscode';
 import { IConnection } from '../common/IConnection';
+import { EditorState } from '../common/editorState';
 
 export default class PostgreSQLLanguageClient {
 
@@ -14,7 +15,7 @@ export default class PostgreSQLLanguageClient {
 
     let serverOptions: ServerOptions = {
       run: { module: serverModule, transport: TransportKind.ipc },
-      debug: { module: serverModule, transport: TransportKind.ipc, options: debugOptions },
+      debug: { module: serverModule, transport: TransportKind.ipc, options: debugOptions }
     };
 
     let clientOptions: LanguageClientOptions = {
@@ -25,11 +26,12 @@ export default class PostgreSQLLanguageClient {
     };
 
     this.client = new LanguageClient('postgres', 'PostgreSQL Service', serverOptions, clientOptions);
+    this.client.onReady().then(() => { EditorState.connection = null; });
     let disposable = this.client.start();
     context.subscriptions.push(disposable);
   }
 
   setConnection(connection: IConnection) {
-    this.client.sendRequest('set_connection', connection);
+    this.client.sendRequest('set_connection', {connection, documentUri: vscode.window.activeTextEditor.document.uri.toString()});
   }
 }
