@@ -2,6 +2,9 @@
 All notable changes to the "vscode-postgres" extension will be documented in this file.
 
 ## [Unreleased]
+### Added
+- Support for DB Views in the database explorer
+- Still working on views for code completion
 
 ## [1.0.1] - 2018-05-07
 ### Added

@@ -31,10 +31,10 @@ export class DatabaseNode implements INode {
     const connection = await Database.createConnection(this.connection);
 
     try {
-      const res = await connection.query(`SELECT tablename FROM pg_tables WHERE schemaname not in ('information_schema', 'pg_catalog') ORDER BY tablename;`);
+      const res = await connection.query(`SELECT tablename as name, true as is_table FROM pg_tables WHERE schemaname not in ('information_schema', 'pg_catalog') union all SELECT viewname as name, false as is_table FROM pg_views WHERE schemaname not in ('information_schema', 'pg_catalog') order by name;`);
       
       return res.rows.map<TableNode>(table => {
-        return new TableNode(this.connection, table.tablename);
+        return new TableNode(this.connection, table.name, table.is_table);
       });
     } catch(err) {
       return [new InfoNode(err)];

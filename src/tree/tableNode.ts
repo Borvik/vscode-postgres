@@ -8,7 +8,7 @@ import { ColumnNode } from './columnNode';
 
 export class TableNode implements INode {
 
-  constructor(public readonly connection: IConnection, public readonly table: string) {}
+  constructor(public readonly connection: IConnection, public readonly table: string, public readonly is_table: boolean) {}
 
   public getTreeItem(): TreeItem {
     return {
@@ -16,8 +16,8 @@ export class TableNode implements INode {
       collapsibleState: TreeItemCollapsibleState.Collapsed,
       contextValue: 'vscode-postgres.tree.table',
       iconPath: {
-        light: path.join(__dirname, '../../resources/light/table.svg'),
-        dark: path.join(__dirname, '../../resources/dark/table.svg')
+        light: path.join(__dirname, `../../resources/light/${this.is_table ? 'table' : 'view'}.svg`),
+        dark: path.join(__dirname, `../../resources/dark/${this.is_table ? 'table' : 'view'}.svg`)
       }
     };
   }
