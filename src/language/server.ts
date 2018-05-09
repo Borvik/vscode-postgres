@@ -33,6 +33,7 @@ export interface DBField {
 
 export interface DBTable {
   tablename: string,
+  is_table: boolean,
   columns: DBField[]
 }
 
@@ -155,12 +156,22 @@ async function loadCompletionCache(connectionOptions: IDBConnection) {
   // setup database caches for functions, tables, and fields
   try {
     if (connectionOptions.database) {
+      /*
+      SELECT tablename as name, true as is_table FROM pg_tables WHERE schemaname not in ('information_schema', 'pg_catalog')
+      union all
+      SELECT viewname as name, false as is_table FROM pg_views WHERE schemaname not in ('information_schema', 'pg_catalog') order by name;
+      */
       let tablesAndColumns = await dbConnection.query(`
         SELECT
-          tablename,
+          tbl.tablename,
+          tbl.is_table,
           json_agg(a) as columns
         FROM
-          pg_tables
+          (
+            SELECT tablename, true as is_table FROM pg_tables WHERE schemaname not in ('information_schema', 'pg_catalog')
+            union all
+            SELECT viewname as tablename, false as is_table FROM pg_views WHERE schemaname not in ('information_schema', 'pg_catalog')
+          ) as tbl
           LEFT JOIN (
             SELECT
               attrelid,
@@ -170,9 +181,8 @@ async function loadCompletionCache(connectionOptions: IDBConnection) {
               attisdropped
             FROM
               pg_attribute
-          ) as a ON (a.attrelid = pg_tables.tablename::regclass AND a.attnum > 0 AND NOT a.attisdropped)
-        WHERE schemaname not in ('information_schema', 'pg_catalog')
-        GROUP BY tablename;
+          ) as a ON (a.attrelid = tbl.tablename::regclass AND a.attnum > 0 AND NOT a.attisdropped)
+        GROUP BY tablename, is_table;
         `);
       tableCache = tablesAndColumns.rows;
     }
@@ -432,7 +442,7 @@ connection.onCompletion((e: any): CompletionItem[] => {
     tableCache.forEach(table => {
       items.push({
         label: table.tablename,
-        kind: CompletionItemKind.Class
+        kind: table.is_table ? CompletionItemKind.Class : CompletionItemKind.Interface
       });
       table.columns.forEach(field => {
         let foundItem = items.find(i => i.label === field.attname && i.kind === CompletionItemKind.Property && i.detail === field.data_type);
