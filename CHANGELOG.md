@@ -3,6 +3,10 @@ All notable changes to the "vscode-postgres" extension will be documented in thi
 
 ## [Unreleased]
 
+## [1.0.3] - 2018-05-10
+### Added
+- Show "Run Query" command errors using notifications
+
 ## [1.0.2] - 2018-05-09
 ### Added
 - Support for DB Views in the database explorer and code completion
