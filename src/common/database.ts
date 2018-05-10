@@ -88,6 +88,12 @@ export class Database {
       vscode.window.showTextDocument(editor.document);
     } catch(err) {
       OutputChannel.appendLine(err);
+      vscode.window.showErrorMessage(err.message);
+      // vscode.window.showErrorMessage(err.message, "Show Console").then((button) => {
+      //   if (button === 'Show Console') {
+      //     OutputChannel.show();
+      //   }
+      // });
     } finally {
       if (connection)
         await connection.end();

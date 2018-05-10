@@ -5,6 +5,10 @@ import { PreviewProvider } from './previewProvider';
 export class OutputChannel {
   private static outputChannel = vscode.window.createOutputChannel('PostgreSQL');
 
+  public static show(): void {
+    OutputChannel.outputChannel.show(true);
+  }
+  
   public static appendLine(value: string, show?: boolean) {
     if (show) OutputChannel.outputChannel.show(true);
     OutputChannel.outputChannel.appendLine(value);
