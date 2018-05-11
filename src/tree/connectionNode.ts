@@ -12,7 +12,7 @@ export class ConnectionNode implements INode {
 
   public getTreeItem(): vscode.TreeItem {
     return {
-      label: this.connection.label,
+      label: this.connection.label || this.connection.host,
       collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
       contextValue: "vscode-postgres.tree.connection",
       command: {

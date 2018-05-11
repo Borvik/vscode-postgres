@@ -87,6 +87,11 @@
                 "category": "PostgreSQL"
             },
             {
+                "command": "vscode-postgres.renameConnection",
+                "title": "Rename Connection",
+                "category": "PostgreSQL"
+            },
+            {
                 "command": "vscode-postgres.newQuery",
                 "title": "New Query",
                 "category": "PostgreSQL"
@@ -173,6 +178,11 @@
             "view/item/context": [
                 {
                     "command": "vscode-postgres.deleteConnection",
+                    "when": "view == postgres && viewItem == vscode-postgres.tree.connection",
+                    "group": "postgres@2"
+                },
+                {
+                    "command": "vscode-postgres.renameConnection",
                     "when": "view == postgres && viewItem == vscode-postgres.tree.connection",
                     "group": "postgres@2"
                 },

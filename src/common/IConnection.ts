@@ -1,5 +1,5 @@
 export interface IConnection {
-  readonly label: string;
+  label: string;
   readonly host: string;
   readonly user: string;
   password?: string;
