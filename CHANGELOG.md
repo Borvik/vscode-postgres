@@ -3,6 +3,10 @@ All notable changes to the "vscode-postgres" extension will be documented in thi
 
 ## [Unreleased]
 
+## [1.0.5] - 2018-05-11
+### Fixed
+- Status bar text when connection is not labelled
+
 ## [1.0.4] - 2018-05-11
 ### Added
 - Display label for postgres connections by @peterbam
