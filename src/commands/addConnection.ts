@@ -12,11 +12,13 @@ export class addConnectionCommand extends BaseCommand {
   async run() {
     const tree = PostgreSQLTreeDataProvider.getInstance();
 
-    const label = await vscode.window.showInputBox({ prompt: "The display name of the database connection", placeHolder: "label", ignoreFocusOut: true });
-    if (!label) return;
+    var label = await vscode.window.showInputBox({ prompt: "The display name of the database connection", placeHolder: "label", ignoreFocusOut: true });
 
     const host = await vscode.window.showInputBox({ prompt: "The hostname of the database", placeHolder: "host", ignoreFocusOut: true });
     if (!host) return;
+    if (!label) {
+      label = host;
+    };
 
     const user = await vscode.window.showInputBox({ prompt: "The PostgreSQL user to authenticate as", placeHolder: "user", ignoreFocusOut: true });
     if (!user) return;
