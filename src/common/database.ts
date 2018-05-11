@@ -40,6 +40,7 @@ export class Database {
   static getConnectionWithDB(connection:IConnection, dbname?: string): IConnection {
     if (!dbname) return connection;
     return {
+      label: connection.label,
       host: connection.host,
       user: connection.user,
       password: connection.password,
