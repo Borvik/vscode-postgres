@@ -31,7 +31,7 @@ export class selectConnectionCommand extends BaseCommand {
     for (const k in connections) {
       if (connections.hasOwnProperty(k)) {
         hosts.push({
-          label: connections[k].host,
+          label: connections[k].label,
           connection_key: k
         });
       }

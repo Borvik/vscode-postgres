@@ -12,6 +12,9 @@ export class addConnectionCommand extends BaseCommand {
   async run() {
     const tree = PostgreSQLTreeDataProvider.getInstance();
 
+    const label = await vscode.window.showInputBox({ prompt: "The display name of the database connection", placeHolder: "label", ignoreFocusOut: true });
+    if (!label) return;
+
     const host = await vscode.window.showInputBox({ prompt: "The hostname of the database", placeHolder: "host", ignoreFocusOut: true });
     if (!host) return;
 
@@ -36,7 +39,7 @@ export class addConnectionCommand extends BaseCommand {
     if (!connections) connections = {};
 
     const id = uuidv1();
-    connections[id] = { host, user, port: nPort, certPath };
+    connections[id] = { label, host, user, port: nPort, certPath };
 
     if (password) {
       await Global.keytar.setPassword(Constants.ExtensionId, id, password);
