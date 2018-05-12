@@ -3,6 +3,10 @@ All notable changes to the "vscode-postgres" extension will be documented in thi
 
 ## [Unreleased]
 
+## [1.0.6] - 2018-05-12
+### Fixed
+- Code Completion: grouped fields of the same data type together and show all the tables/views they belong to in a list
+
 ## [1.0.5] - 2018-05-11
 ### Fixed
 - Status bar text when connection is not labelled
