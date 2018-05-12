@@ -23,7 +23,7 @@ export class deleteConnectionCommand extends BaseCommand {
     for (const k in connections) {
       if (connections.hasOwnProperty(k)) {
         hosts.push({
-          label: connections[k].host,
+          label: connections[k].label || connections[k].host,
           connection_key: k
         });
       }

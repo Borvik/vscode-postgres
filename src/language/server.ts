@@ -124,6 +124,7 @@ async function setupDBConnection(connectionOptions: IDBConnection, uri: string):
 
     if (!connectionOptions.database) {
       connectionOptions = {
+        label: connectionOptions.label, 
         host: connectionOptions.host,
         user: connectionOptions.user,
         password: connectionOptions.password,

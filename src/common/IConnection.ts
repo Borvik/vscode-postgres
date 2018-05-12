@@ -1,4 +1,5 @@
 export interface IConnection {
+  label: string;
   readonly host: string;
   readonly user: string;
   password?: string;

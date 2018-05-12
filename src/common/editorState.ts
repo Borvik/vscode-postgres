@@ -64,7 +64,7 @@ export class EditorState {
       this.statusBarServer.tooltip = 'Change Active Server';
     }
     
-    this.statusBarServer.text = `$(server) ${conn.host}`;
+    this.statusBarServer.text = `$(server) ${conn.label || conn.host}`;
     this.statusBarServer.command = 'vscode-postgres.selectConnection';
     this.statusBarServer.show();
 

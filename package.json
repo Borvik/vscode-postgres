@@ -2,7 +2,7 @@
     "name": "vscode-postgres",
     "displayName": "PostgreSQL",
     "description": "PostgreSQL Management Tool",
-    "version": "1.0.3",
+    "version": "1.0.5",
     "publisher": "ckolkman",
     "repository": {
         "type": "git",
@@ -84,6 +84,11 @@
             {
                 "command": "vscode-postgres.selectConnection",
                 "title": "Select Connection",
+                "category": "PostgreSQL"
+            },
+            {
+                "command": "vscode-postgres.renameConnection",
+                "title": "Rename Connection",
                 "category": "PostgreSQL"
             },
             {
@@ -173,6 +178,11 @@
             "view/item/context": [
                 {
                     "command": "vscode-postgres.deleteConnection",
+                    "when": "view == postgres && viewItem == vscode-postgres.tree.connection",
+                    "group": "postgres@2"
+                },
+                {
+                    "command": "vscode-postgres.renameConnection",
                     "when": "view == postgres && viewItem == vscode-postgres.tree.connection",
                     "group": "postgres@2"
                 },
