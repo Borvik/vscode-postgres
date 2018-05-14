@@ -33,13 +33,13 @@ export class ConnectionNode implements INode {
     const databaseFilter = config.get<string[]>("databaseFilter");
     var filter = '';
     if (databaseFilter) {
-      filter = ` and datname in ('${databaseFilter.join("', '")}');`;
+      filter = ` and datname in ('${databaseFilter.join("', '")}')`;
     }
 
     const connection = await Database.createConnection(this.connection, 'postgres');
     
     try {
-      const res = await connection.query(`SELECT datname FROM pg_database WHERE datistemplate = false ${filter}`);
+      const res = await connection.query(`SELECT datname FROM pg_database WHERE datistemplate = false ${filter};`);
       return res.rows.map<DatabaseNode>(database => {
         return new DatabaseNode(Database.getConnectionWithDB(this.connection, database.datname));
       });

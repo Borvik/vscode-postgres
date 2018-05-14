@@ -10,6 +10,7 @@ import * as fs from 'fs';
 import { Validator } from './validator';
 import { IConnection as IDBConnection } from '../common/IConnection';
 import { BackwardIterator } from '../common/backwordIterator';
+import { Global } from '../common/global';
 
 export interface ISetConnection { 
   connection: IDBConnection
@@ -155,6 +156,14 @@ async function setupDBConnection(connectionOptions: IDBConnection, uri: string):
 async function loadCompletionCache(connectionOptions: IDBConnection) {
   if (!connectionOptions || !dbConnection) return;
   // setup database caches for functions, tables, and fields
+
+  let config = Global.Configuration;
+  const schemaFilter = config.get<string[]>("schemaFilter");
+  var filter = '';
+  if (schemaFilter) {
+    filter = ` where c.table_schema in ('${schemaFilter.join("', '")}')`;
+  }
+
   try {
     if (connectionOptions.database) {
       /*
@@ -163,27 +172,24 @@ async function loadCompletionCache(connectionOptions: IDBConnection) {
       SELECT viewname as name, false as is_table FROM pg_views WHERE schemaname not in ('information_schema', 'pg_catalog') order by name;
       */
       let tablesAndColumns = await dbConnection.query(`
-        SELECT
-          tbl.tablename,
-          tbl.is_table,
-          json_agg(a) as columns
-        FROM
-          (
-            SELECT tablename, true as is_table FROM pg_tables WHERE schemaname not in ('information_schema', 'pg_catalog')
-            union all
-            SELECT viewname as tablename, false as is_table FROM pg_views WHERE schemaname not in ('information_schema', 'pg_catalog')
-          ) as tbl
-          LEFT JOIN (
-            SELECT
-              attrelid,
-              attname,
-              format_type(atttypid, atttypmod) as data_type,
-              attnum,
-              attisdropped
-            FROM
-              pg_attribute
-          ) as a ON (a.attrelid = tbl.tablename::regclass AND a.attnum > 0 AND NOT a.attisdropped)
-        GROUP BY tablename, is_table;
+      with columns as (
+        select distinct
+          table_name as tablename
+          ,true as is_table
+          ,ordinal_position
+          ,column_name
+          ,udt_name
+        from information_schema.columns c
+        ${filter}
+        order by 1, 2, 3
+        )
+        select 
+          tablename
+          ,is_table
+          ,json_agg(row_to_json((select r from (select ordinal_position, column_name as attname, udt_name as data_type, ordinal_position as attnum, false as attisdropped)  r )))
+        from columns
+        group by 1, 2
+        order by 1, 2
         `);
       tableCache = tablesAndColumns.rows;
     }
