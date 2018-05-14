@@ -73,7 +73,7 @@ export class Database {
     let connection: Client = null;
     try {
       connection = await Database.createConnection(connectionOptions);
-      const types: TypeResults = await connection.query(`select oid, typname from pg_type`);
+      const types: TypeResults = await connection.query(`select oid, typname from pg_type where typrelid = 0 and typnamespace < 99`);
       const res: QueryResults | QueryResults[] = await connection.query(sql);
       const results: QueryResults[] = Array.isArray(res) ? res : [res];
 
