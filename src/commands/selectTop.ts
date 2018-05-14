@@ -4,8 +4,9 @@ import { PostgreSQLTreeDataProvider } from "../tree/treeProvider";
 import { TableNode } from "../tree/tableNode";
 import { EditorState } from "../common/editorState";
 import { Database } from "../common/database";
+import { selectTop1000Command } from "./selectTop1000";
 
-export class selectTopCommand extends BaseCommand {
+export class selectTopCommand extends selectTop1000Command {
   async run(treeNode: TableNode) {
     // prompt for count
     const countInput: string = await vscode.window.showInputBox({ prompt: "Select how many?", placeHolder: "port" });
@@ -16,16 +17,7 @@ export class selectTopCommand extends BaseCommand {
       vscode.window.showErrorMessage('Invalid quantity for selection - should be a number');
       return;
     }
-
-    const sql = `
-      select *
-      from ${treeNode.schema}.${treeNode.table}
-      limit ${count};
-    `
-    const textDocument = await vscode.workspace.openTextDocument({content: sql, language: 'postgres'});
-    await vscode.window.showTextDocument(textDocument);
-    EditorState.connection = treeNode.connection;
-
-    return Database.runQuery(sql, vscode.window.activeTextEditor, treeNode.connection);
+    
+    return super.run(treeNode, count);
   }
 }
