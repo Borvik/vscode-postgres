@@ -7,7 +7,7 @@ import { Database } from "../common/database";
 
 export class selectTop1000Command extends BaseCommand {
   async run(treeNode: TableNode) {
-    const sql = `SELECT * FROM ${treeNode.table} LIMIT 1000;`
+    const sql = `SELECT * FROM "${treeNode.getTableName()}" LIMIT 1000;`
     const textDocument = await vscode.workspace.openTextDocument({content: sql, language: 'postgres'});
     await vscode.window.showTextDocument(textDocument);
     EditorState.connection = treeNode.connection;
