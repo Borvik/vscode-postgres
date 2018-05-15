@@ -17,7 +17,7 @@ export class selectTopCommand extends BaseCommand {
       return;
     }
 
-    const sql = `SELECT * FROM "${treeNode.getTableName()}" LIMIT ${count};`
+    const sql = `SELECT * FROM ${treeNode.getQuotedTableName()} LIMIT ${count};`
     const textDocument = await vscode.workspace.openTextDocument({content: sql, language: 'postgres'});
     await vscode.window.showTextDocument(textDocument);
     EditorState.connection = treeNode.connection;

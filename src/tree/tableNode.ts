@@ -14,7 +14,13 @@ export class TableNode implements INode {
             , public readonly schema?: string)
   {}
 
-  public getTableName(): string {
+  public getQuotedTableName(): string {
+    return this.schema && this.schema != 'public'
+      ? `"${this.schema}"."${this.table}"`
+      : `"${this.table}"`;
+  }
+
+  public getDisplayTableName(): string {
     return this.schema && this.schema != 'public'
       ? `${this.schema}.${this.table}`
       : this.table;
@@ -22,7 +28,7 @@ export class TableNode implements INode {
 
   public getTreeItem(): TreeItem {
     return {
-      label: this.getTableName(),
+      label: this.getDisplayTableName(),
       collapsibleState: TreeItemCollapsibleState.Collapsed,
       contextValue: 'vscode-postgres.tree.table',
       iconPath: {
@@ -48,7 +54,7 @@ export class TableNode implements INode {
         a.attrelid = $1::regclass AND
         a.attnum > 0 AND
         NOT a.attisdropped
-      ORDER BY a.attnum;`, [`"${this.getTableName()}"`]);
+      ORDER BY a.attnum;`, [`${this.getQuotedTableName()}`]);
 
       return res.rows.map<ColumnNode>(column => {
         return new ColumnNode(this.connection, this.table, column);
