@@ -8,11 +8,27 @@ import { ColumnNode } from './columnNode';
 
 export class TableNode implements INode {
 
-  constructor(public readonly connection: IConnection, public readonly table: string, public readonly is_table: boolean) {}
+  constructor(public readonly connection: IConnection
+            , public readonly table: string
+            , public readonly is_table: boolean
+            , public readonly schema?: string)
+  {}
+
+  public getQuotedTableName(): string {
+    return this.schema && this.schema != 'public'
+      ? `"${this.schema}"."${this.table}"`
+      : `"${this.table}"`;
+  }
+
+  public getDisplayTableName(): string {
+    return this.schema && this.schema != 'public'
+      ? `${this.schema}.${this.table}`
+      : this.table;
+  }
 
   public getTreeItem(): TreeItem {
     return {
-      label: this.table,
+      label: this.getDisplayTableName(),
       collapsibleState: TreeItemCollapsibleState.Collapsed,
       contextValue: 'vscode-postgres.tree.table',
       iconPath: {
@@ -38,8 +54,8 @@ export class TableNode implements INode {
         a.attrelid = $1::regclass AND
         a.attnum > 0 AND
         NOT a.attisdropped
-      ORDER BY a.attnum;`, [this.table]);
-      
+      ORDER BY a.attnum;`, [`${this.getQuotedTableName()}`]);
+
       return res.rows.map<ColumnNode>(column => {
         return new ColumnNode(this.connection, this.table, column);
       });
