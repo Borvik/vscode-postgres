@@ -270,6 +270,7 @@
         "vscode": "^1.1.17"
     },
     "dependencies": {
+        "bnf": "^1.0.0",
         "csv-stringify": "^3.0.0",
         "easyxml": "^2.0.1",
         "pg": "^7.4.1",

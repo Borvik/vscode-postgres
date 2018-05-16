@@ -10,59 +10,14 @@ import * as fs from 'fs';
 import { Validator } from './validator';
 import { IConnection as IDBConnection } from '../common/IConnection';
 import { BackwardIterator } from '../common/backwordIterator';
-
-export interface ISetConnection { 
-  connection: IDBConnection
-  documentUri?: string;
-}
-
-export interface ExplainResults {
-  rowCount: number;
-  command: string;
-  rows?: any[];
-  fields?: any[];
-}
-
-export interface DBField {
-  attisdropped: boolean,
-  attname: string,
-  attnum: number,
-  attrelid: string,
-  data_type: string
-}
-
-export interface DBTable {
-  tablename: string,
-  is_table: boolean,
-  columns: DBField[]
-}
-
-export interface DBFunctionsRaw {
-  schema: string
-  name: string
-  result_type: string
-  argument_types: string
-  type: string,
-  description: string
-}
-
-export interface DBFunctionArgList {
-  args: string[],
-  description: string
-}
-
-export interface DBFunction {
-  schema: string
-  name: string
-  result_type: string
-  overloads: DBFunctionArgList[],
-  type: string
-}
+import { DBTable, DBFunction, DBFunctionsRaw, ISetConnection } from './interfaces';
+import { SqlParser } from './parser';
 
 let tableCache: DBTable[] = [];
 let functionCache: DBFunction[] = [];
 let keywordCache: string[] = [];
 let databaseCache: string[] = [];
+let sqlParser: SqlParser = new SqlParser([], [], []);
 
 /**
  * To Debug the language server
@@ -250,6 +205,8 @@ async function loadCompletionCache(connectionOptions: IDBConnection) {
   catch (err) {
     console.log(err);
   }
+
+  sqlParser.updateDefinitions(keywordCache, functionCache, tableCache);
 }
 
 connection.onRequest('set_connection', async function() {
@@ -290,9 +247,14 @@ documents.onDidChangeContent((change) => {
 var _NL = '\n'.charCodeAt(0);
 async function validateTextDocument(textDocument: TextDocument): Promise<void> {
   let diagnostics: Diagnostic[] = [];
+
+  let sqlText = textDocument.getText();
+  if (sqlText) {
+    let result = sqlParser.parseSql(sqlText, {});
+    let o = sqlText;
+  }
   // parse and find issues
   if (dbConnection) {
-    let sqlText = textDocument.getText();
     if (!sqlText) {
       connection.sendDiagnostics({uri: textDocument.uri, diagnostics});
       return;

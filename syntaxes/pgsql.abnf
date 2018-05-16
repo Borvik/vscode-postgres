@@ -1,4 +1,4 @@
-commands = command [ semicolon command ]
+SYNTAX = command [ semicolon command ]
 command = selectcommand / updatecommand
 updatecommand = "UPDATE"
 selectcommand = "SELECT " [expression ["," expression]]
