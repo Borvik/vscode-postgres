@@ -360,8 +360,12 @@ dP   `" dP   Yb  8I  Yb 88__       dP   `" dP   Yb 88b  d88 88__dP 88     88__  
 Yb      Yb   dP  8I  dY 88""       Yb      Yb   dP 88YbdP88 88"""  88  .o 88""     88   88 Yb   dP 88 Y88 
  YboodP  YbodP  8888Y"  888888      YboodP  YbodP  88 YY 88 88     88ood8 888888   88   88  YbodP  88  Y8 
 */
+export interface FieldCompletionItem extends CompletionItem {
+  tables?: string[]
+}
+
 connection.onCompletion((e: any): CompletionItem[] => {
-  let items: CompletionItem[] = [];
+  let items: FieldCompletionItem[] = [];
   let scenarioFound = false;
 
   let document = documents.get(e.textDocument.uri);
@@ -446,15 +450,18 @@ connection.onCompletion((e: any): CompletionItem[] => {
         kind: table.is_table ? CompletionItemKind.Class : CompletionItemKind.Interface
       });
       table.columns.forEach(field => {
-        let foundItem = items.find(i => i.label === field.attname && i.kind === CompletionItemKind.Property && i.detail === field.data_type);
+        let foundItem = items.find(i => i.label === field.attname && i.kind === CompletionItemKind.Field && i.detail === field.data_type);
         if (foundItem) {
-          foundItem.documentation += `, ${table.tablename}`;
+          foundItem.tables.push(table.tablename);
+          foundItem.tables.sort();
+          foundItem.documentation = foundItem.tables.join(', ');
         } else {
           items.push({
             label: field.attname,
             kind: CompletionItemKind.Field,
             detail: field.data_type,
-            documentation: table.tablename
+            documentation: table.tablename,
+            tables: [table.tablename]
           });
         }
       });
