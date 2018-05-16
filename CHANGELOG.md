@@ -3,6 +3,10 @@ All notable changes to the "vscode-postgres" extension will be documented in thi
 
 ## [Unreleased]
 
+## [1.0.7] - 2018-05-16
+### Added
+- Schema support to table nodes and capitalized table names by @jgoday
+
 ## [1.0.6] - 2018-05-12
 ### Fixed
 - Code Completion: grouped fields of the same data type together and show all the tables/views they belong to in a list

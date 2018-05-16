@@ -54,7 +54,7 @@ export class TableNode implements INode {
         a.attrelid = $1::regclass AND
         a.attnum > 0 AND
         NOT a.attisdropped
-      ORDER BY a.attnum;`, [`${this.getQuotedTableName()}`]);
+      ORDER BY a.attnum;`, [this.getQuotedTableName()]);
 
       return res.rows.map<ColumnNode>(column => {
         return new ColumnNode(this.connection, this.table, column);
