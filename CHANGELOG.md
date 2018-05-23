@@ -3,6 +3,10 @@ All notable changes to the "vscode-postgres" extension will be documented in thi
 
 ## [Unreleased]
 
+## [1.0.8] - 2018-05-23
+### Added
+- Option to disable changing active connection when navigating the explorer by @mterring
+
 ## [1.0.7] - 2018-05-16
 ### Added
 - Schema support to table nodes and capitalized table names by @jgoday
