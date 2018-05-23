@@ -56,6 +56,16 @@
                     "type": "boolean",
                     "default": false,
                     "description": "Turns on/off pretty printing of JSON fields"
+                },
+                "vscode-postgres.setConnectionFromExplorer": {
+                    "type": "string",
+                    "enum": [
+                        "always",
+                        "ifunset",
+                        "never"
+                    ],
+                    "default": "always",
+                    "description": "Controls whether selecting a database in explorer changes the current editor's connection"
                 }
             }
         },
