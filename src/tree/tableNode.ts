@@ -20,15 +20,9 @@ export class TableNode implements INode {
       : `"${this.table}"`;
   }
 
-  public getDisplayTableName(): string {
-    return this.schema && this.schema != 'public'
-      ? `${this.schema}.${this.table}`
-      : this.table;
-  }
-
   public getTreeItem(): TreeItem {
     return {
-      label: this.getDisplayTableName(),
+      label: this.table,
       collapsibleState: TreeItemCollapsibleState.Collapsed,
       contextValue: 'vscode-postgres.tree.table',
       iconPath: {
@@ -53,7 +47,8 @@ export class TableNode implements INode {
       WHERE
         a.attrelid = $1::regclass AND
         a.attnum > 0 AND
-        NOT a.attisdropped
+        NOT a.attisdropped AND
+        has_column_privilege($1, a.attname, 'SELECT, INSERT, UPDATE, REFERENCES')
       ORDER BY a.attnum;`, [this.getQuotedTableName()]);
 
       return res.rows.map<ColumnNode>(column => {

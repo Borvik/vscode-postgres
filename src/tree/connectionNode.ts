@@ -31,7 +31,14 @@ export class ConnectionNode implements INode {
     const connection = await Database.createConnection(this.connection, 'postgres');
 
     try {
-      const res = await connection.query('SELECT datname FROM pg_database WHERE datistemplate = false;');
+      // Get all database where permission was granted
+      const res = await connection.query(`
+      SELECT datname
+      FROM pg_database
+      WHERE
+        datistemplate = false
+        AND has_database_privilege(datname, 'TEMP, CONNECT') = true
+      ORDER BY datname;`);
       
       return res.rows.map<DatabaseNode>(database => {
         return new DatabaseNode(Database.getConnectionWithDB(this.connection, database.datname));
