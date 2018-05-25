@@ -21,8 +21,8 @@ export class SchemaNode implements INode {
         arguments: [ this.connection ]
       },
       iconPath: {
-        light: path.join(__dirname, '../../resources/light/database.svg'),
-        dark: path.join(__dirname, '../../resources/dark/database.svg')
+        light: path.join(__dirname, '../../resources/light/schema.svg'),
+        dark: path.join(__dirname, '../../resources/dark/schema.svg')
       }
     };
   }
