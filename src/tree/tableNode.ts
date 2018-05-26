@@ -14,10 +14,21 @@ export class TableNode implements INode {
             , public readonly schema?: string)
   {}
 
+  // could probably be simplified, essentially matches Postgres' built-in algorithm without the char pointers
+  private getQuotedIdent(name: string): string {
+    let result = '"';
+    for (let i = 0; i < name.length; i++) {
+      if (name.charAt(i) === '"')
+        result += name.charAt(i);
+      result += name.charAt(i);
+    }
+    return result + '"';
+  }
+
   public getQuotedTableName(): string {
-    return this.schema && this.schema != 'public'
-      ? `"${this.schema}"."${this.table}"`
-      : `"${this.table}"`;
+    let quotedSchema = this.schema && this.schema !== 'public' ? this.getQuotedIdent(this.schema) : null;
+    let quotedTable = this.getQuotedIdent(this.table);
+    return quotedSchema ? `${quotedSchema}.${quotedTable}` : quotedTable;
   }
 
   public getTreeItem(): TreeItem {
