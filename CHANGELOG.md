@@ -3,6 +3,14 @@ All notable changes to the "vscode-postgres" extension will be documented in thi
 
 ## [Unreleased]
 
+## [1.0.9] - 2018-05-30
+### Fixed
+- Info/Error node - if an error occurred when expanding a node in the database explorer there wasn't an indication of what went wrong
+
+### Added
+- Support for PostgreSQL user permissions. Databases, schemas, tables, views should all be filtered based on the user used when setting up the connection.
+- Support for quoted identifiers
+
 ## [1.0.8] - 2018-05-23
 ### Added
 - Option to disable changing active connection when navigating the explorer by @mterring
