@@ -5,7 +5,6 @@ import { IConnection } from '../common/IConnection';
 import { Database } from '../common/database';
 import { DatabaseNode } from './databaseNode';
 import { InfoNode } from './infoNode';
-import { Global } from '../common/global';
 
 export class ConnectionNode implements INode {
 
@@ -29,17 +28,18 @@ export class ConnectionNode implements INode {
   }
 
   public async getChildren(): Promise<INode[]> {
-    let config = Global.Configuration;
-    const databaseFilter = config.get<string[]>("databaseFilter");
-    var filter = '';
-    if (databaseFilter) {
-      filter = ` and datname in ('${databaseFilter.join("', '")}');`;
-    }
-
     const connection = await Database.createConnection(this.connection, 'postgres');
-    
+
     try {
-      const res = await connection.query(`SELECT datname FROM pg_database WHERE datistemplate = false ${filter}`);
+      // Get all database where permission was granted
+      const res = await connection.query(`
+      SELECT datname
+      FROM pg_database
+      WHERE
+        datistemplate = false
+        AND has_database_privilege(datname, 'TEMP, CONNECT') = true
+      ORDER BY datname;`);
+      
       return res.rows.map<DatabaseNode>(database => {
         return new DatabaseNode(Database.getConnectionWithDB(this.connection, database.datname));
       });

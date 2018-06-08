@@ -14,21 +14,26 @@ export class TableNode implements INode {
             , public readonly schema?: string)
   {}
 
-  public getQuotedTableName(): string {
-    return this.schema && this.schema != 'public'
-      ? `"${this.schema}"."${this.table}"`
-      : `"${this.table}"`;
+  // could probably be simplified, essentially matches Postgres' built-in algorithm without the char pointers
+  private getQuotedIdent(name: string): string {
+    let result = '"';
+    for (let i = 0; i < name.length; i++) {
+      if (name.charAt(i) === '"')
+        result += name.charAt(i);
+      result += name.charAt(i);
+    }
+    return result + '"';
   }
 
-  public getDisplayTableName(): string {
-    return this.schema && this.schema != 'public'
-      ? `${this.schema}.${this.table}`
-      : this.table;
+  public getQuotedTableName(): string {
+    let quotedSchema = this.schema && this.schema !== 'public' ? this.getQuotedIdent(this.schema) : null;
+    let quotedTable = this.getQuotedIdent(this.table);
+    return quotedSchema ? `${quotedSchema}.${quotedTable}` : quotedTable;
   }
 
   public getTreeItem(): TreeItem {
     return {
-      label: this.getDisplayTableName(),
+      label: this.table,
       collapsibleState: TreeItemCollapsibleState.Collapsed,
       contextValue: 'vscode-postgres.tree.table',
       iconPath: {
@@ -53,7 +58,8 @@ export class TableNode implements INode {
       WHERE
         a.attrelid = $1::regclass AND
         a.attnum > 0 AND
-        NOT a.attisdropped
+        NOT a.attisdropped AND
+        has_column_privilege($1, a.attname, 'SELECT, INSERT, UPDATE, REFERENCES')
       ORDER BY a.attnum;`, [this.getQuotedTableName()]);
 
       return res.rows.map<ColumnNode>(column => {

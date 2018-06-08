@@ -164,14 +164,35 @@ async function loadCompletionCache(connectionOptions: IDBConnection) {
       */
       let tablesAndColumns = await dbConnection.query(`
         SELECT
+          tbl.schemaname,
           tbl.tablename,
+          tbl.quoted_name,
           tbl.is_table,
           json_agg(a) as columns
         FROM
           (
-            SELECT tablename, true as is_table FROM pg_tables WHERE schemaname not in ('information_schema', 'pg_catalog')
+            SELECT
+              schemaname,
+              tablename,
+              (quote_ident(schemaname) || '.' || quote_ident(tablename)) as quoted_name,
+              true as is_table
+            FROM
+              pg_tables
+            WHERE
+              schemaname not in ('information_schema', 'pg_catalog', 'pg_toast', 'pg_temp_1', 'pg_toast_temp_1')
+              AND has_schema_privilege(schemaname, 'CREATE, USAGE') = true
+              AND has_table_privilege(quote_ident(schemaname) || '.' || quote_ident(tablename), 'SELECT, INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER') = true
             union all
-            SELECT viewname as tablename, false as is_table FROM pg_views WHERE schemaname not in ('information_schema', 'pg_catalog')
+            SELECT
+              schemaname,
+              viewname as tablename,
+              (quote_ident(schemaname) || '.' || quote_ident(viewname)) as quoted_name,
+              false as is_table
+            FROM pg_views
+            WHERE
+              schemaname not in ('information_schema', 'pg_catalog', 'pg_toast', 'pg_temp_1', 'pg_toast_temp_1')
+              AND has_schema_privilege(schemaname, 'CREATE, USAGE') = true
+              AND has_table_privilege(quote_ident(schemaname) || '.' || quote_ident(viewname), 'SELECT, INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER') = true
           ) as tbl
           LEFT JOIN (
             SELECT
@@ -182,8 +203,13 @@ async function loadCompletionCache(connectionOptions: IDBConnection) {
               attisdropped
             FROM
               pg_attribute
-          ) as a ON (a.attrelid = tbl.tablename::regclass AND a.attnum > 0 AND NOT a.attisdropped)
-        GROUP BY tablename, is_table;
+          ) as a ON (
+            a.attrelid = tbl.quoted_name::regclass
+            AND a.attnum > 0
+            AND NOT a.attisdropped
+            AND has_column_privilege(tbl.quoted_name, a.attname, 'SELECT, INSERT, UPDATE, REFERENCES')
+          )
+        GROUP BY schemaname, tablename, quoted_name, is_table;
         `);
       tableCache = tablesAndColumns.rows;
     }
@@ -208,9 +234,12 @@ async function loadCompletionCache(connectionOptions: IDBConnection) {
       FROM pg_catalog.pg_proc p
           LEFT JOIN pg_catalog.pg_namespace n ON n.oid = p.pronamespace
           LEFT JOIN pg_catalog.pg_description d ON p.oid = d.objoid
-      WHERE pg_catalog.pg_function_is_visible(p.oid)
+      WHERE
+        pg_catalog.pg_function_is_visible(p.oid)
         AND p.prorettype <> 'pg_catalog.trigger'::pg_catalog.regtype
             AND n.nspname <> 'information_schema'
+        AND has_schema_privilege(n.nspname, 'CREATE, USAGE') = true
+        AND has_function_privilege(p.oid, 'execute') = true
       ORDER BY 1, 2, 4;
       `);
     
@@ -244,7 +273,13 @@ async function loadCompletionCache(connectionOptions: IDBConnection) {
   }
 
   try {
-    let databases = await dbConnection.query(`SELECT datname FROM pg_database WHERE datistemplate = false;`);
+    let databases = await dbConnection.query(`
+    SELECT datname
+    FROM pg_database
+    WHERE
+      datistemplate = false
+      AND has_database_privilege(datname, 'TEMP, CONNECT') = true
+    ;`);
     databaseCache = databases.rows.map<string>(rw => rw.datname);
   }
   catch (err) {

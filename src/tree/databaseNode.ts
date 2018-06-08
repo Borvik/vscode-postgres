@@ -5,6 +5,7 @@ import { TreeItem, TreeItemCollapsibleState } from "vscode";
 import { Database } from '../common/database';
 import { TableNode } from './tableNode';
 import { InfoNode } from './infoNode';
+import { SchemaNode } from './schemaNode';
 
 export class DatabaseNode implements INode {
 
@@ -31,11 +32,20 @@ export class DatabaseNode implements INode {
     const connection = await Database.createConnection(this.connection);
 
     try {
-      const res = await connection.query(`SELECT tablename as name, true as is_table, schemaname AS schema FROM pg_tables WHERE schemaname not in ('information_schema', 'pg_catalog') union all SELECT viewname as name, false as is_table, schemaname AS schema FROM pg_views WHERE schemaname not in ('information_schema', 'pg_catalog') order by name;`);
+      const res = await connection.query(`
+      SELECT nspname as name
+      FROM pg_namespace
+      WHERE
+        nspname not in ('information_schema', 'pg_catalog', 'pg_toast', 'pg_temp_1', 'pg_toast_temp_1')
+        AND has_schema_privilege(nspname, 'CREATE, USAGE')
+      ORDER BY nspname;`);
 
-      return res.rows.map<TableNode>(table => {
-        return new TableNode(this.connection, table.name, table.is_table, table.schema);
-      });
+      // return res.rows.map<TableNode>(table => {
+      //   return new TableNode(this.connection, table.name, table.is_table, table.schema);
+      // });
+      return res.rows.map<SchemaNode>(schema => {
+        return new SchemaNode(this.connection, schema.name);
+      })
     } catch(err) {
       return [new InfoNode(err)];
     } finally {
