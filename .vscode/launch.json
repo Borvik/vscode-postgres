@@ -3,12 +3,6 @@
     "version": "0.1.0",
     "configurations": [
         {
-            "type": "node",
-            "request": "launch",
-            "name": "Launch Test Program",
-            "program": "${workspaceFolder}/test.js"
-        },
-        {
             "name": "Extension",
             "type": "extensionHost",
             "request": "launch",
