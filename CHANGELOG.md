@@ -3,6 +3,10 @@ All notable changes to the "vscode-postgres" extension will be documented in thi
 
 ## [Unreleased]
 
+## [1.0.11] - 2018-07-06
+### Fixed 
+- Preserve query focus code was spawning a new query editor.
+
 ## [1.0.10] - 2018-07-06
 ### Fixed 
 - Windows bug causing "cannot read property of null" errors - solved simultaneously with @Yarith
