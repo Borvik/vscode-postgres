@@ -28,9 +28,10 @@ export function activate(context: vscode.ExtensionContext) {
     let files = fs.readdirSync(commandPath);
     for (const file of files) {
       if (path.extname(file) === '.map') continue;
-      let className = path.basename(file, '.js') + 'Command';
+      let baseName = path.basename(file, '.js');
+      let className = baseName + 'Command';
 
-      let commandClass = require(path.join(commandPath, file));
+      let commandClass = require(`./commands/${baseName}`);
       new commandClass[className](context);
     }
   }
