@@ -86,7 +86,7 @@ export class Database {
         });
       });
       await OutputChannel.displayResults(resultsUri, 'Results: ' + title, results);
-      vscode.window.showTextDocument(editor.document);
+      vscode.window.showTextDocument(editor.document, editor.viewColumn);
     } catch(err) {
       OutputChannel.appendLine(err);
       vscode.window.showErrorMessage(err.message);
