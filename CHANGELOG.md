@@ -3,6 +3,10 @@ All notable changes to the "vscode-postgres" extension will be documented in thi
 
 ## [Unreleased]
 
+## [1.0.10] - 2018-07-06
+### Fixed 
+- Windows bug causing "cannot read property of null" errors - solved simultaneously with @Yarith
+
 ## [1.0.9] - 2018-05-30
 ### Fixed
 - Info/Error node - if an error occurred when expanding a node in the database explorer there wasn't an indication of what went wrong
