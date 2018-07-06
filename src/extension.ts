@@ -24,13 +24,25 @@ export function activate(context: vscode.ExtensionContext) {
   EditorState.getInstance(languageClient);
 
   try {
-    let commandPath = context.asAbsolutePath(path.join('out', 'commands'));
+    // The path relative to the current file. In this case the extension-module file.
+    let commandPathRelative = './commands/';
+    
+    // Only use the created commandPath to find the module name of the commands. See explanation below, above the require call.
+    let commandPath = context.asAbsolutePath(path.join('out', commandPathRelative));
     let files = fs.readdirSync(commandPath);
     for (const file of files) {
       if (path.extname(file) === '.map') continue;
       let className = path.basename(file, '.js') + 'Command';
 
-      let commandClass = require(path.join(commandPath, file));
+      // The commandPath seems to be always with a lower case drive letter on windows, 
+      // which is not always the case for the captured path in the require function.
+      // The require function uses internally a dictionary with the full module path for 
+      // the case sensitive key to determine if the module is already loaded. If the same
+      // module is required with different paths, then multiple module loading will happen. 
+      // This has already caused following issues:
+      // https://github.com/Borvik/vscode-postgres/issues/19
+      // https://github.com/Borvik/vscode-postgres/issues/27
+      let commandClass = require(commandPathRelative + file);
       new commandClass[className](context);
     }
   }
