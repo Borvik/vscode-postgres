@@ -36,6 +36,17 @@ export interface TypeResults {
 }
 
 export class Database {
+
+  // could probably be simplified, essentially matches Postgres' built-in algorithm without the char pointers
+  static getQuotedIdent(name: string): string {
+    let result = '"';
+    for (let i = 0; i < name.length; i++) {
+      if (name.charAt(i) === '"')
+        result += name.charAt(i);
+      result += name.charAt(i);
+    }
+    return result + '"';
+  }
   
   static getConnectionWithDB(connection:IConnection, dbname?: string): IConnection {
     if (!dbname) return connection;

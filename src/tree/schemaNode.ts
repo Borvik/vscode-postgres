@@ -39,7 +39,7 @@ export class SchemaNode implements INode {
         FROM pg_tables
         WHERE 
           schemaname = $1
-          AND has_table_privilege('"' || schemaname || '"."' || tablename || '"', 'SELECT, INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER') = true
+          AND has_table_privilege(quote_ident(schemaname) || '.' || quote_ident(tablename), 'SELECT, INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER') = true
       UNION ALL
       SELECT
           viewname as name,
@@ -48,7 +48,7 @@ export class SchemaNode implements INode {
         FROM pg_views
         WHERE 
           schemaname = $1
-          AND has_table_privilege('"' || schemaname || '"."' || viewname || '"', 'SELECT, INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER') = true
+          AND has_table_privilege(quote_ident(schemaname) || '.' || quote_ident(viewname), 'SELECT, INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER') = true
       ORDER BY name;`, [this.schemaName]);
 
       return res.rows.map<TableNode>(table => {

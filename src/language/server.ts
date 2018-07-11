@@ -180,7 +180,7 @@ async function loadCompletionCache(connectionOptions: IDBConnection) {
               pg_tables
             WHERE
               schemaname not in ('information_schema', 'pg_catalog', 'pg_toast', 'pg_temp_1', 'pg_toast_temp_1')
-              AND has_schema_privilege(schemaname, 'CREATE, USAGE') = true
+              AND has_schema_privilege(quote_ident(schemaname), 'CREATE, USAGE') = true
               AND has_table_privilege(quote_ident(schemaname) || '.' || quote_ident(tablename), 'SELECT, INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER') = true
             union all
             SELECT
@@ -191,7 +191,7 @@ async function loadCompletionCache(connectionOptions: IDBConnection) {
             FROM pg_views
             WHERE
               schemaname not in ('information_schema', 'pg_catalog', 'pg_toast', 'pg_temp_1', 'pg_toast_temp_1')
-              AND has_schema_privilege(schemaname, 'CREATE, USAGE') = true
+              AND has_schema_privilege(quote_ident(schemaname), 'CREATE, USAGE') = true
               AND has_table_privilege(quote_ident(schemaname) || '.' || quote_ident(viewname), 'SELECT, INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER') = true
           ) as tbl
           LEFT JOIN (
@@ -215,7 +215,7 @@ async function loadCompletionCache(connectionOptions: IDBConnection) {
     }
   }
   catch (err) {
-    console.log(err);
+    console.log(err.message);
   }
 
   try {
@@ -238,7 +238,7 @@ async function loadCompletionCache(connectionOptions: IDBConnection) {
         pg_catalog.pg_function_is_visible(p.oid)
         AND p.prorettype <> 'pg_catalog.trigger'::pg_catalog.regtype
             AND n.nspname <> 'information_schema'
-        AND has_schema_privilege(n.nspname, 'CREATE, USAGE') = true
+        AND has_schema_privilege(quote_ident(n.nspname), 'CREATE, USAGE') = true
         AND has_function_privilege(p.oid, 'execute') = true
       ORDER BY 1, 2, 4;
       `);
@@ -261,7 +261,7 @@ async function loadCompletionCache(connectionOptions: IDBConnection) {
     });
   }
   catch (err) {
-    console.log(err);
+    console.log(err.message);
   }
 
   try {
@@ -269,7 +269,7 @@ async function loadCompletionCache(connectionOptions: IDBConnection) {
     keywordCache = keywords.rows.map<string>(rw => rw.word.toLocaleUpperCase());
   }
   catch (err) {
-    console.log(err);
+    console.log(err.message);
   }
 
   try {
@@ -278,12 +278,12 @@ async function loadCompletionCache(connectionOptions: IDBConnection) {
     FROM pg_database
     WHERE
       datistemplate = false
-      AND has_database_privilege(datname, 'TEMP, CONNECT') = true
+      AND has_database_privilege(quote_ident(datname), 'TEMP, CONNECT') = true
     ;`);
     databaseCache = databases.rows.map<string>(rw => rw.datname);
   }
   catch (err) {
-    console.log(err);
+    console.log(err.message);
   }
 }
 
