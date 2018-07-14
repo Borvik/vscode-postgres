@@ -5,6 +5,9 @@ All notable changes to the "vscode-postgres" extension will be documented in thi
 ### Fixed
 - Quoted schemas/tables in priviledge queries.
 
+### Added
+- Support for editing connection details.
+
 ## [1.0.11] - 2018-07-06
 ### Fixed 
 - Preserve query focus code was spawning a new query editor.

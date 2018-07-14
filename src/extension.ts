@@ -9,6 +9,7 @@ import { PostgreSQLTreeDataProvider } from './tree/treeProvider';
 import { Global } from './common/global';
 import { EditorState } from './common/editorState';
 import { PreviewProvider } from './common/previewProvider';
+import { ConfigFS } from './common/configFileSystem';
 
 
 // this method is called when your extension is activated
@@ -47,6 +48,9 @@ export function activate(context: vscode.ExtensionContext) {
   vscode.workspace.onDidOpenTextDocument((e: vscode.TextDocument) => {
     EditorState.setNonActiveConnection(e, null);
   });
+
+  const configFS = new ConfigFS();
+  context.subscriptions.push(vscode.workspace.registerFileSystemProvider('postgres-config', configFS, {isCaseSensitive: true}));
 
   // EditorState.connection = null;
 }
