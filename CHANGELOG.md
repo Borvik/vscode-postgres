@@ -2,6 +2,8 @@
 All notable changes to the "vscode-postgres" extension will be documented in this file.
 
 ## [Unreleased]
+
+## [1.0.12] - 2018-07-14
 ### Fixed
 - Quoted schemas/tables in priviledge queries.
 
