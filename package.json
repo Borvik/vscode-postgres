@@ -2,7 +2,7 @@
   "name": "vscode-postgres",
   "displayName": "PostgreSQL",
   "description": "PostgreSQL Management Tool",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "publisher": "ckolkman",
   "repository": {
     "type": "git",
@@ -60,9 +60,9 @@
         "vscode-postgres.setConnectionFromExplorer": {
           "type": "string",
           "enum": [
-              "always",
-              "ifunset",
-              "never"
+            "always",
+            "ifunset",
+            "never"
           ],
           "default": "always",
           "description": "Controls whether selecting a database in explorer changes the current editor's connection"
