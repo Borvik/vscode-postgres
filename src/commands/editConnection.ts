@@ -9,9 +9,9 @@ import { PostgreSQLTreeDataProvider } from "../tree/treeProvider";
 
 'use strict';
 
-export class renameConnectionCommand extends BaseCommand {
+export class editConnectionCommand extends BaseCommand {
   async run(treeNode: any) {
-    let selectedConnection: IConnection = null;
+    // let selectedConnection: IConnection = null;
     let selectedConnId: any = null;
 
     let connections = Global.context.globalState.get<{ [key: string]: IConnection }>(Constants.GlobalStateKey);
@@ -21,8 +21,6 @@ export class renameConnectionCommand extends BaseCommand {
     }
 
     if (treeNode && treeNode.connection) {
-      selectedConnection = Object.assign({}, treeNode.connection);
-      delete selectedConnection.password;
       selectedConnId = treeNode.id;
     } else {
       let hosts: ConnectionQuickPickItem[] = [];
@@ -34,17 +32,18 @@ export class renameConnectionCommand extends BaseCommand {
       const hostToSelect = await vscode.window.showQuickPick(hosts, {placeHolder: 'Select a connection', matchOnDetail: false});
       if (!hostToSelect) return;
 
-      selectedConnection = Object.assign({}, connections[hostToSelect.connection_key]);
       selectedConnId = hostToSelect.connection_key;
     }
 
-    const label = await vscode.window.showInputBox({ prompt: "The display name of the database connection", placeHolder: "label", ignoreFocusOut: true });
-    selectedConnection.label = label;
+    const configDocument = await vscode.workspace.openTextDocument(vscode.Uri.parse(`postgres-config:/${selectedConnId}.json`));
+    await vscode.window.showTextDocument(configDocument);
+    // const label = await vscode.window.showInputBox({ prompt: "The display name of the database connection", placeHolder: "label", ignoreFocusOut: true });
+    // selectedConnection.label = label;
     
-    connections[selectedConnId] = selectedConnection;
+    // connections[selectedConnId] = selectedConnection;
 
-    const tree = PostgreSQLTreeDataProvider.getInstance();
-    await tree.context.globalState.update(Constants.GlobalStateKey, connections);
-    tree.refresh();
+    // const tree = PostgreSQLTreeDataProvider.getInstance();
+    // await tree.context.globalState.update(Constants.GlobalStateKey, connections);
+    // tree.refresh();
   }
 }
