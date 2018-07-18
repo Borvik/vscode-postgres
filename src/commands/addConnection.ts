@@ -34,6 +34,9 @@ export class addConnectionCommand extends BaseCommand {
       return;
     }
 
+    const database = await vscode.window.showInputBox({ prompt: "[Optional] The database to connect to. Leave empty to enumerate databases on the server", ignoreFocusOut: true });
+    if (database === undefined) return;
+
     const certPath = await vscode.window.showInputBox({ prompt: "[Optional] SSL certificate path. Leave empty to ignore", placeHolder: "certificate file path", ignoreFocusOut: true });
     if (certPath === undefined) return;
     
@@ -41,7 +44,7 @@ export class addConnectionCommand extends BaseCommand {
     if (!connections) connections = {};
 
     const id = uuidv1();
-    connections[id] = { label, host, user, port: nPort, certPath };
+    connections[id] = { label, host, user, port: nPort, certPath, database };
 
     if (password) {
       await Global.keytar.setPassword(Constants.ExtensionId, id, password);

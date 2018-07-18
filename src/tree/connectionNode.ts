@@ -28,6 +28,9 @@ export class ConnectionNode implements INode {
   }
 
   public async getChildren(): Promise<INode[]> {
+    if (this.connection.database) {
+      return [new DatabaseNode(this.connection)];
+    }
     const connection = await Database.createConnection(this.connection, 'postgres');
 
     try {
