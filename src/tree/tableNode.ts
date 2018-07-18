@@ -5,6 +5,7 @@ import { TreeItem, TreeItemCollapsibleState } from "vscode";
 import { Database } from '../common/database';
 import { InfoNode } from './infoNode';
 import { ColumnNode } from './columnNode';
+import { Global } from '../common/global';
 
 export class TableNode implements INode {
 
@@ -34,6 +35,14 @@ export class TableNode implements INode {
 
   public async getChildren(): Promise<INode[]> {
     const connection = await Database.createConnection(this.connection);
+    //config.get<boolean>("prettyPrintJSONfields") ? `.jsonb-field, .json-field { white-space: pre; }` : ``;
+    const configSort = Global.Configuration.get<string>("tableColumnSortOrder");
+    const sortOptions = {
+      "db-order": 'a.attnum',
+      "alpha": 'a.attname',
+      "reverse-alpha": 'a.attname DESC'
+    };
+    if (!sortOptions[configSort]) sortOptions[configSort] = 'a.attnum';
 
     try {
       const res = await connection.query(`
@@ -49,7 +58,7 @@ export class TableNode implements INode {
         a.attnum > 0 AND
         NOT a.attisdropped AND
         has_column_privilege($1, a.attname, 'SELECT, INSERT, UPDATE, REFERENCES')
-      ORDER BY a.attnum;`, [this.getQuotedTableName()]);
+      ORDER BY ${sortOptions[configSort]};`, [this.getQuotedTableName()]);
 
       return res.rows.map<ColumnNode>(column => {
         return new ColumnNode(this.connection, this.table, column);

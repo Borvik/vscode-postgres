@@ -66,6 +66,16 @@
           ],
           "default": "always",
           "description": "Controls whether selecting a database in explorer changes the current editor's connection"
+        },
+        "vscode-postgres.tableColumnSortOrder": {
+          "type": "string",
+          "enum": [
+            "db-order",
+            "alpha",
+            "reverse-alpha"
+          ],
+          "default": "db-order",
+          "description": "Controls the order of the columns in the database explorer. Default is db-order which orders the columns as the were added to the table (how postgres reports them)"
         }
       }
     },

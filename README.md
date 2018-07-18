@@ -75,3 +75,4 @@ This extension contributes the following settings:
 * `vscode-postgres.showExplorer`: enable/disable the database explorer.
 * `vscode-postgres.prettyPrintJSONfields`: set to `true` to enable nicely formatted JSON in the query results window.
 * `vscode-postgres.setConnectionFromExplorer`: set to `ifunset` to only set the query connection if not already set.
+* `vscode-postgres.tableColumnSortOrder`: set to `db-order` to sort columns like the database does, `alpha` to sort alphabetically, and `reverse-alpha` for descending alphabetically.
