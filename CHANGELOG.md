@@ -2,6 +2,8 @@
 All notable changes to the "vscode-postgres" extension will be documented in this file.
 
 ## [Unreleased]
+
+## [1.0.13] - 2018-07-18
 ### Added
 - Support for optionally providing a database when creating a connection (ends up with a single-database connection in the db explorer).
 - Added configuration setting to control the sort order of table columns: database order, alphabetical, and reverse alpha.
