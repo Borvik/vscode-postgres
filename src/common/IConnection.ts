@@ -8,4 +8,5 @@ export interface IConnection {
   multipleStatements?: boolean;
   readonly certPath?: string;
   ssl?: any;
+  sslMode?: any;
 }
