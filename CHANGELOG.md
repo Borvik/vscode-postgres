@@ -3,6 +3,11 @@ All notable changes to the "vscode-postgres" extension will be documented in thi
 
 ## [Unreleased]
 
+## [1.0.14] - 2018-08-10
+### Fixed
+- Display of `interval` data formats
+- Changed using namespace name to oid for issue #33
+
 ## [1.0.13] - 2018-07-18
 ### Added
 - Support for optionally providing a database when creating a connection (ends up with a single-database connection in the db explorer).

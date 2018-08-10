@@ -76,6 +76,16 @@
           ],
           "default": "db-order",
           "description": "Controls the order of the columns in the database explorer. Default is db-order which orders the columns as the were added to the table (how postgres reports them)"
+        },
+        "vscode-postgres.intervalFormat": {
+          "type": "string",
+          "enum": [
+            "iso_8601",
+            "humanize",
+            "succinct"
+          ],
+          "default": "iso_8601",
+          "description": "Controls the display format for `interval` columns. Default is the iso_8601 standard which does not cover milliseconds."
         }
       }
     },
