@@ -37,7 +37,7 @@ export class DatabaseNode implements INode {
       FROM pg_namespace
       WHERE
         nspname not in ('information_schema', 'pg_catalog', 'pg_toast', 'pg_temp_1', 'pg_toast_temp_1')
-        AND has_schema_privilege(quote_ident(nspname), 'CREATE, USAGE')
+        AND has_schema_privilege(oid, 'CREATE, USAGE')
       ORDER BY nspname;`);
 
       // return res.rows.map<TableNode>(table => {
