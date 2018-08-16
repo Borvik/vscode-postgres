@@ -76,7 +76,7 @@ export class PreviewProvider implements vscode.TextDocumentContentProvider {
     if (typeof value === typeof undefined) return '';
 
     let canTruncate: boolean = false;
-    console.log('Field Format: ', field.format);
+    // console.log('Field Format: ', field.format);
     switch (field.format) {
       case 'interval':
         value = this.formatInterval(value, config); break;
@@ -198,8 +198,8 @@ export class PreviewProvider implements vscode.TextDocumentContentProvider {
       if (result.rows && result.rows.length) {
         result.rows.forEach((row) => {
           html += `<tr><th class="row-header">${rowIndex++}</th>`;
-          result.fields.forEach((field) => {
-            let formatted = this.formatData(field, row[field.name], config);
+          result.fields.forEach((field, idx) => {
+            let formatted = this.formatData(field, row[idx], config);
             html += `<td class="${field.format}-field">${formatted ? formatted : ''}</td>`;
           });
           html += `</tr>`;

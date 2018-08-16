@@ -3,6 +3,10 @@ All notable changes to the "vscode-postgres" extension will be documented in thi
 
 ## [Unreleased]
 
+## [1.0.15] - 2018-08-16
+### Fixed
+- Display of results when running queries with multiple columns of the same name.
+
 ## [1.0.14] - 2018-08-10
 ### Fixed
 - Display of `interval` data formats
