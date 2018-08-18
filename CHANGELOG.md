@@ -2,6 +2,8 @@
 All notable changes to the "vscode-postgres" extension will be documented in this file.
 
 ## [Unreleased]
+### Added
+- Icon for foreign keys in the database explorer.
 
 ## [1.0.15] - 2018-08-16
 ### Fixed

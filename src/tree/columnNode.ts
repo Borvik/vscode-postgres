@@ -10,9 +10,20 @@ export class ColumnNode implements INode {
 
   public async getChildren(): Promise<INode[]> { return []; }
   public getTreeItem(): TreeItem {
-    let icon = this.column.primary_key ? 'p-key' : 'column';
+    let icon = 'column';
+    let label = `${this.column.column_name} : ${this.column.data_type}`;
+    let tooltip = label;
+
+    if (this.column.primary_key) icon = 'p-key';
+    if (this.column.foreign_key) {
+      icon = 'f-key';
+      tooltip += '\n' + this.column.foreign_key.constraint;
+      tooltip += ' -> ' + this.column.foreign_key.table + '.' + this.column.foreign_key.column;
+    }
+
     return {
-      label: `${this.column.column_name} : ${this.column.data_type}`,
+      label,
+      tooltip,
       collapsibleState: TreeItemCollapsibleState.None,
       contextValue: 'vscode-postgres.tree.column',
       iconPath: {
