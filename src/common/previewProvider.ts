@@ -188,7 +188,7 @@ export class PreviewProvider implements vscode.TextDocumentContentProvider {
       // first the column headers
       html += `<thead><tr><th></th>`;
       result.fields.forEach((field) => {
-        html += `<th><div class="field-name">${field.name}</div><div class="field-type">${field.format}</div></th>`;
+        html += `<th><div class="field-name">${field.name}</div><div class="field-type">${field.display_type}</div></th>`;
       });
       html += `</tr></thead>`;
 

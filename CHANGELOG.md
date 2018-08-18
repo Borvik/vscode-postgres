@@ -4,6 +4,7 @@ All notable changes to the "vscode-postgres" extension will be documented in thi
 ## [Unreleased]
 ### Added
 - Icon for foreign keys in the database explorer.
+- Display formatted type names in results grid headers by @lnicola
 
 ## [1.0.15] - 2018-08-16
 ### Fixed

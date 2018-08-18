@@ -13,6 +13,7 @@ export interface FieldInfo {
   format: string;
   name: string;
   tableID: number;
+  display_type?: string;
 };
 
 export interface QueryResults {
@@ -26,6 +27,7 @@ export interface QueryResults {
 export interface TypeResult {
   oid: number;
   typname: string;
+  display_type?: string;
 };
 
 export interface TypeResults {
@@ -84,7 +86,7 @@ export class Database {
     let connection: Client = null;
     try {
       connection = await Database.createConnection(connectionOptions);
-      const typeNamesQuery = `select oid, format_type(oid, typtypmod) as typname from pg_type`;
+      const typeNamesQuery = `select oid, format_type(oid, typtypmod) as display_type, typname from pg_type`;
       const types: TypeResults = await connection.query(typeNamesQuery);
       const res: QueryResults | QueryResults[] = await connection.query({ text: sql, rowMode: 'array' });
       const results: QueryResults[] = Array.isArray(res) ? res : [res];
@@ -94,6 +96,7 @@ export class Database {
           let type = types.rows.find((t) => t.oid === field.dataTypeID);
           if (type) {
             field.format = type.typname;
+            field.display_type = type.display_type;
           }
         });
       });
