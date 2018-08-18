@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as vscode from 'vscode';
 import * as path from 'path';
-import {Pool, Client, types } from 'pg';
+import { Pool, Client, types } from 'pg';
 import { IConnection } from "./IConnection";
 import { OutputChannel } from './outputChannel';
 
@@ -47,8 +47,8 @@ export class Database {
     }
     return result + '"';
   }
-  
-  static getConnectionWithDB(connection:IConnection, dbname?: string): IConnection {
+
+  static getConnectionWithDB(connection: IConnection, dbname?: string): IConnection {
     if (!dbname) return connection;
     return {
       label: connection.label,
@@ -84,8 +84,9 @@ export class Database {
     let connection: Client = null;
     try {
       connection = await Database.createConnection(connectionOptions);
-      const types: TypeResults = await connection.query(`select oid, typname from pg_type`);
-      const res: QueryResults | QueryResults[] = await connection.query({text: sql, rowMode: 'array'});
+      const typeNamesQuery = `select oid, format_type(oid, typtypmod) as typname from pg_type`;
+      const types: TypeResults = await connection.query(typeNamesQuery);
+      const res: QueryResults | QueryResults[] = await connection.query({ text: sql, rowMode: 'array' });
       const results: QueryResults[] = Array.isArray(res) ? res : [res];
 
       results.forEach((result) => {
@@ -98,7 +99,7 @@ export class Database {
       });
       await OutputChannel.displayResults(resultsUri, 'Results: ' + title, results);
       vscode.window.showTextDocument(editor.document, editor.viewColumn);
-    } catch(err) {
+    } catch (err) {
       OutputChannel.appendLine(err);
       vscode.window.showErrorMessage(err.message);
       // vscode.window.showErrorMessage(err.message, "Show Console").then((button) => {

@@ -8,7 +8,7 @@ import { Database } from "../common/database";
 export class selectTopCommand extends BaseCommand {
   async run(treeNode: TableNode) {
     // prompt for count
-    const countInput: string = await vscode.window.showInputBox({ prompt: "Select how many?", placeHolder: "port" });
+    const countInput: string = await vscode.window.showInputBox({ prompt: "Select how many?", placeHolder: "limit" });
     if (!countInput) return;
 
     const count: number = parseInt(countInput);
