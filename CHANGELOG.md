@@ -2,6 +2,8 @@
 All notable changes to the "vscode-postgres" extension will be documented in this file.
 
 ## [Unreleased]
+
+## [1.0.16] - 2018-08-18
 ### Fixed
 - Explain statements should now work again (broke with fix in 1.0.15)
 
