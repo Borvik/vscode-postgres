@@ -2,6 +2,9 @@
 All notable changes to the "vscode-postgres" extension will be documented in this file.
 
 ## [Unreleased]
+### Fixed
+- Explain statements should now work again (broke with fix in 1.0.15)
+
 ### Added
 - Icon for foreign keys in the database explorer.
 - Display formatted type names in results grid headers by @lnicola
