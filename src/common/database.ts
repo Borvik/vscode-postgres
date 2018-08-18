@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as vscode from 'vscode';
 import * as path from 'path';
-import {Pool, Client, types } from 'pg';
+import { Client, types , defaults } from 'pg';
 import { IConnection } from "./IConnection";
 import { OutputChannel } from './outputChannel';
 
@@ -65,6 +65,7 @@ export class Database {
   public static async createConnection(connection: IConnection, dbname?: string): Promise<Client> {
     const connectionOptions: any = Object.assign({}, connection);
     connectionOptions.database = dbname ? dbname : connection.database;
+    defaults.ssl = connection.sslMode ? connection.sslMode : defaults.ssl;
     if (connectionOptions.certPath && fs.existsSync(connectionOptions.certPath)) {
       connectionOptions.ssl = {
         ca: fs.readFileSync(connectionOptions.certPath).toString()

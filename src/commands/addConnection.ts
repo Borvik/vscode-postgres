@@ -39,12 +39,15 @@ export class addConnectionCommand extends BaseCommand {
 
     const certPath = await vscode.window.showInputBox({ prompt: "[Optional] SSL certificate path. Leave empty to ignore", placeHolder: "certificate file path", ignoreFocusOut: true });
     if (certPath === undefined) return;
-    
+
+    const sslMode = await vscode.window.showInputBox({ prompt: "[Optional] SSL mode. Leave empty to ignore", placeHolder: "<disable, allow, prefrer, require, verify-ca, verify-full>", ignoreFocusOut: true });
+    if (sslMode === undefined) return;
+
     let connections = tree.context.globalState.get<{ [key: string]: IConnection }>(Constants.GlobalStateKey);
     if (!connections) connections = {};
 
     const id = uuidv1();
-    connections[id] = { label, host, user, port: nPort, certPath, database };
+    connections[id] = { label, host, user, port: nPort, certPath, database, sslMode };
 
     if (password) {
       await Global.keytar.setPassword(Constants.ExtensionId, id, password);
