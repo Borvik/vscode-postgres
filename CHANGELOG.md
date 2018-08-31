@@ -2,6 +2,8 @@
 All notable changes to the "vscode-postgres" extension will be documented in this file.
 
 ## [Unreleased]
+### Added
+- Support for `circle` and `point` geometric types.
 
 ## [1.0.16] - 2018-08-18
 ### Fixed

@@ -82,6 +82,8 @@ export class PreviewProvider implements vscode.TextDocumentContentProvider {
         value = this.formatInterval(value, config); break;
       case 'json':
       case 'jsonb':
+      case 'point':
+      case 'circle':
         if (config.get<boolean>("prettyPrintJSONfields"))
           value = JSON.stringify(value, null, 2);
         else
