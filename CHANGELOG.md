@@ -2,6 +2,8 @@
 All notable changes to the "vscode-postgres" extension will be documented in this file.
 
 ## [Unreleased]
+
+## [1.1.0] - 2018-09-03
 ### Updated
 - Transitioned result pane from using TextDocumentContentProvider to using Webviews.
 
