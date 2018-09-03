@@ -2,8 +2,15 @@
 All notable changes to the "vscode-postgres" extension will be documented in this file.
 
 ## [Unreleased]
+### Updated
+- Transitioned result pane from using TextDocumentContentProvider to using Webviews.
+
+### Fixed
+- Serialize results to JSON and XML should work properly again (broke with fix in 1.0.15).
+
 ### Added
 - Support for `circle` and `point` geometric types.
+- All query results now use the result pane.
 
 ## [1.0.16] - 2018-08-18
 ### Fixed

@@ -2,14 +2,13 @@ import BaseCommand from "../common/baseCommand";
 import * as vscode from 'vscode';
 import * as EasyXml from 'easyxml';
 import * as csv from 'csv-stringify';
-import { PreviewProvider } from "../common/previewProvider";
 import { SaveTableQuickPickItem } from "../common/IConnQuickPick";
+import { Global } from "../common/global";
+import { QueryResults } from "../common/database";
 
 export class saveResultCommand extends BaseCommand {
   async run(uri: vscode.Uri) {
-    // const tree = PostgreSQLTreeDataProvider.getInstance();
-    // tree.refresh(treeNode);
-    let results = PreviewProvider.Instance.getResultData(uri);
+    let results = Global.ResultManager.activeWinResults;
     if (!results) {
       vscode.window.showWarningMessage('Unable to save data - dataset not found');
       return;
@@ -41,7 +40,8 @@ export class saveResultCommand extends BaseCommand {
 
     let fileData: string = null;
     if (selFormat === 'json') {
-      fileData = JSON.stringify(results[resultIndex].rows, null, 2);
+      let data = transformResult(results[resultIndex]);
+      fileData = JSON.stringify(data, null, 2);
     } else if (selFormat === 'xml') {
       var ser = new EasyXml({
         singularize: true,
@@ -49,7 +49,8 @@ export class saveResultCommand extends BaseCommand {
         dateFormat: 'ISO',
         manifest: true
       });
-      fileData = ser.render(results[resultIndex].rows);
+      let data = transformResult(results[resultIndex]);
+      fileData = ser.render(data);
     } else if (selFormat === 'csv') {
       let columns = {};
       results[resultIndex].fields.forEach(field => {
@@ -84,4 +85,24 @@ export class saveResultCommand extends BaseCommand {
       vscode.window.showErrorMessage(err);
     }
   }
+}
+
+function transformResult(result: QueryResults) {
+  let trxFunc = transformData.bind(null, result.fields);
+  return result.rows.map(trxFunc);
+}
+
+function transformData(fields, row) {
+  let newRow = {};
+  let fieldCounts = {};
+  fields.forEach((field, idx) => {
+    if (fieldCounts.hasOwnProperty(field)) {
+      fieldCounts[field.name]++;
+      newRow[field.name + '_' + fieldCounts[field.name]] = row[idx];
+    } else {
+      fieldCounts[field.name] = 0;
+      newRow[field.name] = row[idx];
+    }
+  });
+  return newRow;
 }

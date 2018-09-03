@@ -4,8 +4,10 @@
     "target": "es6",
     "outDir": "out",
     "lib": [
-      "es6"
-    ],
+			"es6",
+			"es2015.promise",
+			"dom"
+		],
     "sourceMap": true,
     "rootDir": "src"
   },

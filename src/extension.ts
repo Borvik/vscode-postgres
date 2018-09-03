@@ -8,8 +8,8 @@ import PostgreSQLLanguageClient from './language/client';
 import { PostgreSQLTreeDataProvider } from './tree/treeProvider';
 import { Global } from './common/global';
 import { EditorState } from './common/editorState';
-import { PreviewProvider } from './common/previewProvider';
 import { ConfigFS } from './common/configFileSystem';
+import { ResultsManager } from './resultsview/resultsManager';
 
 
 // this method is called when your extension is activated
@@ -40,10 +40,8 @@ export function activate(context: vscode.ExtensionContext) {
     console.error('Command loading error:', err);
   }
 
-  context.subscriptions.push(vscode.workspace.registerTextDocumentContentProvider('postgres-results', PreviewProvider.Instance));
-  vscode.workspace.onDidCloseTextDocument(params => {
-    PreviewProvider.Instance.onDidCloseTextDocument(params);
-  });
+  Global.ResultManager = new ResultsManager();
+  context.subscriptions.push(Global.ResultManager);
 
   vscode.workspace.onDidOpenTextDocument((e: vscode.TextDocument) => {
     EditorState.setNonActiveConnection(e, null);

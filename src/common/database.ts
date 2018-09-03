@@ -22,6 +22,7 @@ export interface QueryResults {
   rows?: any[];
   fields?: FieldInfo[];
   flaggedForDeletion?: boolean;
+  message?: string;
 };
 
 export interface TypeResult {
