@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { QueryResults } from './database';
-import { PreviewProvider } from './previewProvider';
+import { Global } from './global';
 
 export class OutputChannel {
   private static outputChannel = vscode.window.createOutputChannel('PostgreSQL');
@@ -14,39 +14,13 @@ export class OutputChannel {
     OutputChannel.outputChannel.appendLine(value);
   }
 
-  public static displayResults(uri: vscode.Uri, title: string, res: QueryResults[]): Thenable<any> {
-    let hasSelectResult: boolean = false;
-    res.forEach(result => {
-      switch (result.command) {
-        case 'INSERT': OutputChannel.appendLine(result.rowCount + ' rows inserted'); break;
-        case 'UPDATE': OutputChannel.appendLine(result.rowCount + ' rows updated'); break;
-        case 'CREATE': OutputChannel.appendLine(result.rowCount + ' rows created'); break;
-        case 'DELETE': OutputChannel.appendLine(result.rowCount + ' rows deleted'); break;
-        case 'EXPLAIN':
-          result.rows.forEach(row => OutputChannel.appendLine(row[0], true));
-          break;
-        case 'SELECT':
-          hasSelectResult = true;
-          OutputChannel.appendLine(result.rowCount + ' rows selected'); break;
-        default: OutputChannel.appendLine(JSON.stringify(result), true); break;
-      }
-    });
-
-    if (!hasSelectResult) return Promise.resolve();
-
+  public static displayResults(uri: vscode.Uri, title: string, res: QueryResults[]): void {
     let viewColumn = OutputChannel.getViewColumn();
-
-    PreviewProvider.Instance.update(uri, res);
-    return vscode.commands.executeCommand('vscode.previewHtml', uri, viewColumn, title)
-      .then((success) => {}, (reason) => {
-        vscode.window.showErrorMessage(reason);
-      });
+    Global.ResultManager.showResults(uri, viewColumn, res);
   }
 
   private static getViewColumn(): vscode.ViewColumn {
-    if (vscode.window.activeTextEditor.viewColumn === vscode.ViewColumn.One)
-      return vscode.ViewColumn.Two;
-    else
-      return vscode.ViewColumn.Three;
+    const resourceColumn = (vscode.window.activeTextEditor && vscode.window.activeTextEditor.viewColumn) || vscode.ViewColumn.One;
+    return resourceColumn + 1;
   }
 }
