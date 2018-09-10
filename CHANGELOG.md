@@ -3,6 +3,10 @@ All notable changes to the "vscode-postgres" extension will be documented in thi
 
 ## [Unreleased]
 
+## [1.1.1] - 2018-09-10
+### Fixed
+- `prettyPrintJSONfields` setting should work again
+
 ## [1.1.0] - 2018-09-03
 ### Updated
 - Transitioned result pane from using TextDocumentContentProvider to using Webviews.

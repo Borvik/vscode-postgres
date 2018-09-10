@@ -37,6 +37,14 @@ export function generateResultsHtml(sourceUri: vscode.Uri, results: QueryResults
 
 function getStyles(nonce) {
   let config = Global.Configuration;
+  let prettyJsonFieldStyle = '';
+  if (config.get<boolean>('prettyPrintJSONfields')) {
+    prettyJsonFieldStyle = `
+    .jsonb-field, .json-field {
+      white-space: pre;
+    }
+    `;
+  }
   return `<style nonce="${nonce}">
     body {
       margin: 0;
@@ -82,6 +90,8 @@ function getStyles(nonce) {
     .field-type {
       font-size: smaller;
     }
+
+    ${prettyJsonFieldStyle}
     
     table {
       border-collapse: collapse;
