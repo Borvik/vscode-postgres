@@ -22,7 +22,7 @@ export class renameConnectionCommand extends BaseCommand {
 
     if (treeNode && treeNode.connection) {
       selectedConnection = Object.assign({}, treeNode.connection);
-      delete selectedConnection.password;
+      selectedConnection.password = selectedConnection.password ? "<password>" : null;
       selectedConnId = treeNode.id;
     } else {
       let hosts: ConnectionQuickPickItem[] = [];

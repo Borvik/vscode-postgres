@@ -119,7 +119,9 @@ export class ConfigFS implements vscode.FileSystemProvider {
     if (connections && connections.hasOwnProperty(connectionKey)) {
       // create the file
       let connection: IConnection = Object.assign({}, connections[connectionKey]);
-      connection.password = await Global.keytar.getPassword(Constants.ExtensionId, connectionKey);
+      if (connection.password == "<password>") {
+        connection.password = await Global.keytar.getPassword(Constants.ExtensionId, connectionKey);
+      }
       let connString = JSON.stringify(connection, null, 2);
       configFile = new ConfigFile(connection.label || connection.host);
       configFile.data = Buffer.from(connString);
