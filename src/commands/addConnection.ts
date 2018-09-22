@@ -47,6 +47,7 @@ export class addConnectionCommand extends BaseCommand {
     connections[id] = { label, host, user, port: nPort, certPath, database };
 
     if (password) {
+      connections[id].password = "<password>";
       await Global.keytar.setPassword(Constants.ExtensionId, id, password);
     }
 
