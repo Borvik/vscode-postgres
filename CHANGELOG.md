@@ -2,6 +2,8 @@
 All notable changes to the "vscode-postgres" extension will be documented in this file.
 
 ## [Unreleased]
+
+## [1.1.2] - 2018-09-24
 ### Added
 - Support for PostgreSQL 9.3
 
