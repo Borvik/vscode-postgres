@@ -42,7 +42,9 @@ export class selectConnectionCommand extends BaseCommand {
 
     if (!hostToSelect.is_new_selector) {
       let connection: IConnection = Object.assign({}, connections[hostToSelect.connection_key]);
-      connection.password = await Global.keytar.getPassword(Constants.ExtensionId, hostToSelect.connection_key);
+      if (connection.password == "<password>") {
+        connection.password = await Global.keytar.getPassword(Constants.ExtensionId, hostToSelect.connection_key);
+      }
       EditorState.connection = connection;
       await vscode.commands.executeCommand('vscode-postgres.selectDatabase');
       return;
