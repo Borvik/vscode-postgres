@@ -5,6 +5,9 @@ All notable changes to the "vscode-postgres" extension will be documented in thi
 ### Added
 - Better support for blank passwords - doesn't touch Keytar (thanks to @SWW13)
 
+### Fixed
+- Performance opening table to show columns degraded when the column query when support was added for v9.3.  Version detection was put in to allow a better performing query to work on 9.4+.
+
 ## [1.1.2] - 2018-09-24
 ### Added
 - Support for PostgreSQL 9.3
