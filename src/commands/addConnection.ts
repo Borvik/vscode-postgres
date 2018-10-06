@@ -46,7 +46,8 @@ export class addConnectionCommand extends BaseCommand {
     const id = uuidv1();
     connections[id] = { label, host, user, port: nPort, certPath, database };
 
-    if (password) {
+    connections[id].hasPassword = !!password;
+    if (connections[id].hasPassword) {
       await Global.keytar.setPassword(Constants.ExtensionId, id, password);
     }
 

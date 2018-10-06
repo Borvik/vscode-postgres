@@ -88,11 +88,14 @@ export class ConfigFS implements vscode.FileSystemProvider {
     let pwd = newDetails.password;
     delete newDetails.password;
     let connection: IConnection = Object.assign({}, newDetails);
+    connection.hasPassword = !!pwd;
 
     connections[connectionKey] = connection;
     const tree = PostgreSQLTreeDataProvider.getInstance();
 
-    await Global.keytar.setPassword(Constants.ExtensionId, connectionKey, pwd);
+    if (connection.hasPassword) {
+      await Global.keytar.setPassword(Constants.ExtensionId, connectionKey, pwd);
+    }
     await Global.context.globalState.update(Constants.GlobalStateKey, connections)
     tree.refresh();
     this._fireSoon({type: vscode.FileChangeType.Changed, uri});
@@ -119,7 +122,12 @@ export class ConfigFS implements vscode.FileSystemProvider {
     if (connections && connections.hasOwnProperty(connectionKey)) {
       // create the file
       let connection: IConnection = Object.assign({}, connections[connectionKey]);
-      connection.password = await Global.keytar.getPassword(Constants.ExtensionId, connectionKey);
+      if (connection.hasPassword || !connection.hasOwnProperty('hasPassword')) {
+        connection.password = await Global.keytar.getPassword(Constants.ExtensionId, connectionKey);
+      } else {
+        connection.password = "";
+      }
+      delete connection.hasPassword;
       let connString = JSON.stringify(connection, null, 2);
       configFile = new ConfigFile(connection.label || connection.host);
       configFile.data = Buffer.from(connString);

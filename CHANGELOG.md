@@ -2,6 +2,8 @@
 All notable changes to the "vscode-postgres" extension will be documented in this file.
 
 ## [Unreleased]
+### Added
+- Better support for blank passwords - doesn't touch Keytar (thanks to @SWW13)
 
 ## [1.1.2] - 2018-09-24
 ### Added
