@@ -108,6 +108,24 @@
         "category": "PostgreSQL"
       },
       {
+        "command": "vscode-postgres.filterTree",
+        "title": "Set Filter",
+        "icon": {
+          "light": "resources/light/filter.svg",
+          "dark": "resources/dark/filter.svg"
+        },
+        "category": "PostgreSQL"
+      },
+      {
+        "command": "vscode-postgres.clearTreeFilter",
+        "title": "Add Connection",
+        "icon": {
+          "light": "resources/light/add.svg",
+          "dark": "resources/dark/add.svg"
+        },
+        "category": "PostgreSQL"
+      },
+      {
         "command": "vscode-postgres.deleteConnection",
         "title": "Delete Connection",
         "category": "PostgreSQL"
@@ -174,6 +192,11 @@
         {
           "command": "vscode-postgres.addConnection",
           "when": "view == postgres",
+          "group": "navigation@1"
+        },
+        {
+          "command": "vscode-postgres.filterTree",
+          "when": "view == postgres && !vscodePostgresFiltered",
           "group": "navigation@1"
         }
       ],

@@ -23,6 +23,7 @@ export function activate(context: vscode.ExtensionContext) {
   let treeProvider: PostgreSQLTreeDataProvider = PostgreSQLTreeDataProvider.getInstance(context);
   Global.context = context;
   EditorState.getInstance(languageClient);
+  Global.setFilterStatus(false);
 
   try {
     let commandPath = context.asAbsolutePath(path.join('out', 'commands'));

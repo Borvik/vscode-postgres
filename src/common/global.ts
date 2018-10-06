@@ -9,6 +9,11 @@ export class Global {
   public static keytar: typeof keytarType = getCoreNodeModule('keytar');
   public static context: vscode.ExtensionContext = null;
   public static ResultManager: ResultsManager = null;
+  public static FilterContextKey: string = 'vscodePostgresFiltered';
+
+  public static setFilterStatus(isFiltered: boolean) {
+    vscode.commands.executeCommand('setContext', Global.FilterContextKey, isFiltered);
+  }
 
   public static get Configuration(): vscode.WorkspaceConfiguration {
     return vscode.workspace.getConfiguration(Constants.ExtensionId);
