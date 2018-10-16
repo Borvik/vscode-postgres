@@ -58,6 +58,11 @@
           "default": false,
           "description": "Turns on/off pretty printing of JSON fields"
         },
+        "vscode-postgres.useStatusBar": {
+          "type": "boolean",
+          "default": true,
+          "description": "Turns on/off usage of status bar for managing connection"
+        },
         "vscode-postgres.setConnectionFromExplorer": {
           "type": "string",
           "enum": [

@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { IConnection } from './IConnection';
 import PostgreSQLLanguageClient from '../language/client';
+import { Global } from './global';
 
 export class EditorState {
 
@@ -49,6 +50,19 @@ export class EditorState {
   onDidChangeActiveTextEditor(e: vscode.TextEditor) {
     let conn: IConnection = e && e.document && e.document.uri ? this.metadata.get(e.document.uri.toString()) : null;
     this.languageClient.setConnection(conn);
+
+    if (!Global.Configuration.get<boolean>("useStatusBar")) {
+      if (this.statusBarServer) {
+        this.statusBarServer.hide();
+      }
+
+      if (this.statusBarDatabase) {
+        this.statusBarDatabase.hide();
+      }
+
+      return;
+    }
+
     if (conn) {
       // set the status buttons
       this.setStatusButtons(conn);
