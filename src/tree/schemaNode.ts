@@ -5,6 +5,8 @@ import { TreeItem, TreeItemCollapsibleState } from "vscode";
 import { Database } from "../common/database";
 import { TableNode } from "./tableNode";
 import { InfoNode } from "./infoNode";
+import { Global } from '../common/global';
+import { FunctionFolderNode } from './funcFolderNode';
 
 export class SchemaNode implements INode {
 
@@ -29,6 +31,7 @@ export class SchemaNode implements INode {
 
   public async getChildren(): Promise<INode[]> {
     const connection = await Database.createConnection(this.connection);
+    const configVirtFolders = Global.Configuration.get<Array<string>>("virtualFolders");
 
     try {
       const res = await connection.query(`
@@ -51,9 +54,17 @@ export class SchemaNode implements INode {
           AND has_table_privilege(quote_ident(schemaname) || '.' || quote_ident(viewname), 'SELECT, INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER') = true
       ORDER BY name;`, [this.schemaName]);
 
-      return res.rows.map<TableNode>(table => {
+      let childs = [];
+      if (configVirtFolders != null)
+      {
+        if (configVirtFolders.indexOf("functions") !== -1) {
+          childs.push(new FunctionFolderNode(this.connection, this.schemaName));
+        }
+      }
+      // Append tables under virtual folders
+      return childs.concat(res.rows.map<TableNode>(table => {
         return new TableNode(this.connection, table.name, table.is_table, table.schema);
-      });
+      }));
     } catch(err) {
       return [new InfoNode(err)];
     } finally {
