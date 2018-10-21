@@ -179,7 +179,9 @@ async function loadCompletionCache(connectionOptions: IDBConnection) {
             FROM
               pg_tables
             WHERE
-              schemaname not in ('information_schema', 'pg_catalog', 'pg_toast', 'pg_temp_1', 'pg_toast_temp_1')
+              schemaname not in ('information_schema', 'pg_catalog', 'pg_toast')
+              AND schemaname not like 'pg_temp_%'
+              AND schemaname not like 'pg_toast_temp_%'
               AND has_schema_privilege(quote_ident(schemaname), 'CREATE, USAGE') = true
               AND has_table_privilege(quote_ident(schemaname) || '.' || quote_ident(tablename), 'SELECT, INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER') = true
             union all
@@ -190,7 +192,9 @@ async function loadCompletionCache(connectionOptions: IDBConnection) {
               false as is_table
             FROM pg_views
             WHERE
-              schemaname not in ('information_schema', 'pg_catalog', 'pg_toast', 'pg_temp_1', 'pg_toast_temp_1')
+              schemaname not in ('information_schema', 'pg_catalog', 'pg_toast')
+              AND schemaname not like 'pg_temp_%'
+              AND schemaname not like 'pg_toast_temp_%'
               AND has_schema_privilege(quote_ident(schemaname), 'CREATE, USAGE') = true
               AND has_table_privilege(quote_ident(schemaname) || '.' || quote_ident(viewname), 'SELECT, INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER') = true
           ) as tbl
