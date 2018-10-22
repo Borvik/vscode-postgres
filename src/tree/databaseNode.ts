@@ -36,7 +36,9 @@ export class DatabaseNode implements INode {
       SELECT nspname as name
       FROM pg_namespace
       WHERE
-        nspname not in ('information_schema', 'pg_catalog', 'pg_toast', 'pg_temp_1', 'pg_toast_temp_1')
+        nspname not in ('information_schema', 'pg_catalog', 'pg_toast')
+        AND nspname not like 'pg_temp_%'
+        AND nspname not like 'pg_toast_temp_%'
         AND has_schema_privilege(oid, 'CREATE, USAGE')
       ORDER BY nspname;`);
 
