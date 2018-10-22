@@ -131,7 +131,12 @@ export class BackwardIterator {
     let identStarted = false, isQuotedIdentifier = false;
     let ident = '';
     while (this.hasNext()) {
-      let ch = this.next();
+      // Peek first and check if is part of identifier
+      let ch = this.peekNext();
+      if (identStarted && !isQuotedIdentifier && !this.isIdentPart(ch))
+        break;
+
+      ch = this.next();
       if (!identStarted && isQuotedIdentifier && ch === _DQuote) {
         identStarted = true;
         continue;
@@ -147,15 +152,31 @@ export class BackwardIterator {
         if (isQuotedIdentifier) {
           if (ch === BOF) break;
           ident = String.fromCharCode(ch) + ident;
-          if (ch === _DQuote) identStarted = false;
-        } else if (!this.isIdentPart(ch)) {
-          break;
+          if (ch === _DQuote) break;
         } else {
           ident = String.fromCharCode(ch) + ident;
         }
       }
     }
     return ident;
+  }
+
+  public readIdents(maxlvl: number): string[] {
+    let idents = [];
+    while (maxlvl > 0) {
+      maxlvl--;
+      let ident = this.readIdent();
+      if (!ident) {
+        break;
+      }
+    
+      idents.push(ident)
+  
+      if (!this.isNextPeriod()) {
+        break;
+      }
+    }
+    return idents.reverse();
   }
 
   private isIdentPart(ch: number): boolean {
