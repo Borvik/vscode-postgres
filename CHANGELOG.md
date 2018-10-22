@@ -2,6 +2,8 @@
 All notable changes to the "vscode-postgres" extension will be documented in this file.
 
 ## [Unreleased]
+### Fixed
+- Better hiding of `pg_temp` and `pg_toast` tables by @lafriks
 
 ## [1.1.3] - 2018-09-24
 ### Added
