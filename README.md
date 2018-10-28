@@ -9,7 +9,7 @@ It is possible there are some queries that won't run and report problems - even 
 ## Features
 
 * Management of PostgreSQL connections
-* List Servers/Database/Tables/Columns (primary key/type)
+* List Servers/Database/Functions/Tables/Columns (primary key/type)
 * Quickly select top * (with limit) of a table
 * Run Queries
   * All queries in a pgsql file (; delimited)
@@ -77,3 +77,4 @@ This extension contributes the following settings:
 * `vscode-postgres.setConnectionFromExplorer`: set to `ifunset` to only set the query connection if not already set.
 * `vscode-postgres.tableColumnSortOrder`: set to `db-order` to sort columns like the database does, `alpha` to sort alphabetically, and `reverse-alpha` for descending alphabetically.
 * `vscode-postgres.intervalFormat`: set to `iso_8601` to format intervals according to the ISO 8601 standard, `humanize` to format as easy to read text, and `succinct` to format like a countdown clock.
+* `vscode-postgres.virtualFolders`: set to array of virtual folders to be displayed under schema. Supported values for virtual folders are `functions`. Set to `null` or empty array `[]` to disable virtual folders.
