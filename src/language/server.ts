@@ -23,6 +23,10 @@ export interface ExplainResults {
   fields?: any[];
 }
 
+export interface DBSchema {
+  name: string
+}
+
 export interface DBField {
   attisdropped: boolean,
   attname: string,
@@ -32,6 +36,7 @@ export interface DBField {
 }
 
 export interface DBTable {
+  schemaname: string,
   tablename: string,
   is_table: boolean,
   columns: DBField[]
@@ -59,6 +64,12 @@ export interface DBFunction {
   type: string
 }
 
+export interface Ident {
+  isQuoted: boolean,
+  name: string
+}
+
+let schemaCache: DBSchema[] = [];
 let tableCache: DBTable[] = [];
 let functionCache: DBFunction[] = [];
 let keywordCache: string[] = [];
@@ -154,7 +165,26 @@ async function setupDBConnection(connectionOptions: IDBConnection, uri: string):
 
 async function loadCompletionCache(connectionOptions: IDBConnection) {
   if (!connectionOptions || !dbConnection) return;
-  // setup database caches for functions, tables, and fields
+  // setup database caches for schemas, functions, tables, and fields
+  try {
+    if (connectionOptions.database) {
+      let schemas = await dbConnection.query(`
+        SELECT nspname as name
+        FROM pg_namespace
+        WHERE
+          nspname not in ('information_schema', 'pg_catalog', 'pg_toast')
+          AND nspname not like 'pg_temp_%'
+          AND nspname not like 'pg_toast_temp_%'
+          AND has_schema_privilege(oid, 'CREATE, USAGE')
+        ORDER BY nspname;
+        `);
+      schemaCache = schemas.rows;
+    }
+  }
+  catch (err) {
+    console.log(err.message);
+  }
+
   try {
     if (connectionOptions.database) {
       /*
@@ -459,15 +489,38 @@ connection.onCompletion((e: any): CompletionItem[] => {
   }
 
   if (e.context.triggerCharacter === '.') {
-    let ident = iterator.readIdent();
-    let isQuotedIdent = false;
-    if (ident.match(/^\".*?\"$/)) {
-      isQuotedIdent = true;
-      ident = fixQuotedIdent(ident);
+    let idents = readIdents(iterator, 3);
+    let pos = 0;
+
+    let schema = schemaCache.find(sch => {
+      return (idents[pos].isQuoted && sch.name === idents[pos].name) || (!idents[pos].isQuoted && sch.name.toLocaleLowerCase() == idents[pos].name.toLocaleLowerCase());
+    });
+
+    if (!schema) {
+      schema = schemaCache.find(sch => {
+        return sch.name == "public"
+      });
+    } else {
+      pos++;
+    }
+
+    if (idents.length == pos) {
+      tableCache.forEach(tbl => {
+        if (tbl.schemaname != schema.name) {
+          return;
+        }
+        items.push({
+          label: tbl.tablename,
+          kind: CompletionItemKind.Class,
+          detail: tbl.schemaname !== "public" ? tbl.schemaname : null
+        });
+      });
+      return items;
     }
 
     let table = tableCache.find(tbl => {
-      return (isQuotedIdent && tbl.tablename === ident) || (!isQuotedIdent && tbl.tablename.toLocaleLowerCase() == ident.toLocaleLowerCase());
+      return tbl.schemaname == schema.name
+            && (idents[pos].isQuoted && tbl.tablename === idents[pos].name) || (!idents[pos].isQuoted && tbl.tablename.toLocaleLowerCase() == idents[pos].name.toLocaleLowerCase());
     });
 
     if (table) {
@@ -483,10 +536,18 @@ connection.onCompletion((e: any): CompletionItem[] => {
   }
 
   if (!scenarioFound) {
+    schemaCache.forEach(schema => {
+      items.push({
+        label: schema.name,
+        kind: CompletionItemKind.Module
+      });
+    });
     tableCache.forEach(table => {
       items.push({
         label: table.tablename,
-        kind: table.is_table ? CompletionItemKind.Class : CompletionItemKind.Interface
+        detail: table.schemaname !== "public" ? table.schemaname : null,
+        kind: table.is_table ? CompletionItemKind.Class : CompletionItemKind.Interface,
+        insertText: table.schemaname == "public" ? table.tablename : table.schemaname + "." + table.tablename
       });
       table.columns.forEach(field => {
         let foundItem = items.find(i => i.label === field.attname && i.kind === CompletionItemKind.Field && i.detail === field.data_type);
@@ -569,6 +630,17 @@ connection.onSignatureHelp((positionParams): SignatureHelp => {
 
 function fixQuotedIdent(str: string): string {
   return str.replace(/^\"/, '').replace(/\"$/, '').replace(/\"\"/, '"');
+}
+
+function readIdents(iterator: BackwardIterator, maxlvl: number): Ident[] {
+  return iterator.readIdents(maxlvl).map<Ident>(name => {
+    let isQuoted = false;
+    if (name.match(/^\".*?\"$/)) {
+      isQuoted = true;
+      name = fixQuotedIdent(name);
+    }
+    return { isQuoted: isQuoted, name: name };
+  });
 }
 
 // setup the language service
