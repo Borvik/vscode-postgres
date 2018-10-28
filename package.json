@@ -87,6 +87,11 @@
           ],
           "default": "iso_8601",
           "description": "Controls the display format for `interval` columns. Default is the iso_8601 standard which does not cover milliseconds."
+        },
+        "vscode-postgres.virtualFolders": {
+          "type": "array",
+          "default": ["functions"],
+          "description": "Controls virtual folders that are shown under schema. Currently only functions are supported."
         }
       }
     },
@@ -245,6 +250,11 @@
         {
           "command": "vscode-postgres.refresh",
           "when": "view == postgres && viewItem == vscode-postgres.tree.table",
+          "group": "postgres@1"
+        },
+        {
+          "command": "vscode-postgres.refresh",
+          "when": "view == postgres && viewItem == vscode-postgres.tree.function-folder",
           "group": "postgres@1"
         },
         {
