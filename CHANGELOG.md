@@ -2,6 +2,10 @@
 All notable changes to the "vscode-postgres" extension will be documented in this file.
 
 ## [Unreleased]
+### Added
+- `Functions` virtual folder (must enable in configuration) by @lafriks
+- Added schemas to autocompletion by @lafriks
+
 ### Fixed
 - Better hiding of `pg_temp` and `pg_toast` tables by @lafriks
 
