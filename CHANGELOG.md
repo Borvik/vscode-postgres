@@ -2,6 +2,8 @@
 All notable changes to the "vscode-postgres" extension will be documented in this file.
 
 ## [Unreleased]
+
+## [1.1.4] - 2018-09-24
 ### Added
 - `Functions` virtual folder (must enable in configuration) by @lafriks
 - Added schemas to autocompletion by @lafriks
