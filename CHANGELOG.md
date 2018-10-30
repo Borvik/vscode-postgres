@@ -3,7 +3,7 @@ All notable changes to the "vscode-postgres" extension will be documented in thi
 
 ## [Unreleased]
 
-## [1.1.4] - 2018-09-24
+## [1.1.4] - 2018-10-29
 ### Added
 - `Functions` virtual folder (must enable in configuration) by @lafriks
 - Added schemas to autocompletion by @lafriks
@@ -11,7 +11,7 @@ All notable changes to the "vscode-postgres" extension will be documented in thi
 ### Fixed
 - Better hiding of `pg_temp` and `pg_toast` tables by @lafriks
 
-## [1.1.3] - 2018-09-24
+## [1.1.3] - 2018-10-06
 ### Added
 - Better support for blank passwords - doesn't touch Keytar (thanks to @SWW13)
 
