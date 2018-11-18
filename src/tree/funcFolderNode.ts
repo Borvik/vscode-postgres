@@ -5,6 +5,7 @@ import { TreeItem, TreeItemCollapsibleState } from "vscode";
 import { Database } from "../common/database";
 import { FunctionNode } from "./functionNode";
 import { InfoNode } from "./infoNode";
+import { Global } from '../common/global';
 
 export class FunctionFolderNode implements INode {
   constructor(public readonly connection: IConnection
@@ -34,8 +35,7 @@ export class FunctionFolderNode implements INode {
         pg_catalog.pg_get_function_result(p.oid) as "result_type",
         pg_catalog.pg_get_function_arguments(p.oid) as "argument_types",
       CASE
-        WHEN p.proisagg THEN 'agg'
-        WHEN p.proiswindow THEN 'window'
+        ${Global.prokind}
         WHEN p.prorettype = 'pg_catalog.trigger'::pg_catalog.regtype THEN 'trigger'
         ELSE 'normal'
       END as "type"

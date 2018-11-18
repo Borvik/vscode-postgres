@@ -10,6 +10,10 @@ export class Global {
   public static context: vscode.ExtensionContext = null;
   public static ResultManager: ResultsManager = null;
 
+  // Postgres 11 uses prokind, in pg_proc, instead of proisagg and proiswindow
+  // Determines current postgres version on Database.createConnection and stores the suitable query string
+  public static prokind: string = "";
+
   public static get Configuration(): vscode.WorkspaceConfiguration {
     return vscode.workspace.getConfiguration(Constants.ExtensionId);
   }

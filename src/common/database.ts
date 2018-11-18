@@ -4,6 +4,7 @@ import * as path from 'path';
 import { Pool, Client, types } from 'pg';
 import { IConnection } from "./IConnection";
 import { OutputChannel } from './outputChannel';
+import { Global } from './global';
 
 export interface FieldInfo {
   columnID: number;
@@ -76,6 +77,21 @@ export class Database {
 
     let client = new Client(connectionOptions);
     await client.connect();
+
+    const prokind = await client.query(`
+    SELECT EXISTS( SELECT 1
+    FROM information_schema.columns
+    WHERE table_schema='pg_catalog' and table_name='pg_proc' and column_name='prokind');
+    `);
+
+    if (prokind.rows.length > 0 && prokind.rows[0].exists) {
+      Global.prokind = `WHEN p.prokind = 'a' THEN 'agg'
+      WHEN p.prokind = 'w' THEN 'window'`
+    } else {
+      Global.prokind = `WHEN p.proisagg THEN 'agg'
+      WHEN p.proiswindow THEN 'window'`
+    }
+
     return client;
   }
 
