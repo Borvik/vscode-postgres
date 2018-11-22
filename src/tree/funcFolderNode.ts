@@ -5,6 +5,7 @@ import { TreeItem, TreeItemCollapsibleState } from "vscode";
 import { Database } from "../common/database";
 import { FunctionNode } from "./functionNode";
 import { InfoNode } from "./infoNode";
+import { SqlQueryManager } from '../queries';
 
 export class FunctionFolderNode implements INode {
   constructor(public readonly connection: IConnection
@@ -27,26 +28,28 @@ export class FunctionFolderNode implements INode {
     const connection = await Database.createConnection(this.connection);
 
     try {
-      const res = await connection.query(`
-      SELECT n.nspname as "schema",
-        p.proname as "name",
-        d.description,
-        pg_catalog.pg_get_function_result(p.oid) as "result_type",
-        pg_catalog.pg_get_function_arguments(p.oid) as "argument_types",
-      CASE
-        WHEN p.proisagg THEN 'agg'
-        WHEN p.proiswindow THEN 'window'
-        WHEN p.prorettype = 'pg_catalog.trigger'::pg_catalog.regtype THEN 'trigger'
-        ELSE 'normal'
-      END as "type"
-      FROM pg_catalog.pg_proc p
-          LEFT JOIN pg_catalog.pg_namespace n ON n.oid = p.pronamespace
-          LEFT JOIN pg_catalog.pg_description d ON p.oid = d.objoid
-      WHERE n.nspname = $1
-        AND p.prorettype <> 'pg_catalog.trigger'::pg_catalog.regtype
-        AND has_schema_privilege(quote_ident(n.nspname), 'USAGE') = true
-        AND has_function_privilege(p.oid, 'execute') = true
-      ORDER BY 1, 2, 4;`, [this.schemaName]);
+      // const res = await connection.query(`
+      // SELECT n.nspname as "schema",
+      //   p.proname as "name",
+      //   d.description,
+      //   pg_catalog.pg_get_function_result(p.oid) as "result_type",
+      //   pg_catalog.pg_get_function_arguments(p.oid) as "argument_types",
+      // CASE
+      //   WHEN p.proisagg THEN 'agg'
+      //   WHEN p.proiswindow THEN 'window'
+      //   WHEN p.prorettype = 'pg_catalog.trigger'::pg_catalog.regtype THEN 'trigger'
+      //   ELSE 'normal'
+      // END as "type"
+      // FROM pg_catalog.pg_proc p
+      //     LEFT JOIN pg_catalog.pg_namespace n ON n.oid = p.pronamespace
+      //     LEFT JOIN pg_catalog.pg_description d ON p.oid = d.objoid
+      // WHERE n.nspname = $1
+      //   AND p.prorettype <> 'pg_catalog.trigger'::pg_catalog.regtype
+      //   AND has_schema_privilege(quote_ident(n.nspname), 'USAGE') = true
+      //   AND has_function_privilege(p.oid, 'execute') = true
+      // ORDER BY 1, 2, 4;`, [this.schemaName]);
+      let query = SqlQueryManager.getVersionQueries(connection.pg_version);
+      const res = await connection.query(query.GetFunctions, [this.schemaName]);
 
       return res.rows.map<FunctionNode>(func => {
         var args = func.argument_types != null ? func.argument_types.split(',').map(arg => {

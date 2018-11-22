@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as vscode from 'vscode';
 import * as path from 'path';
-import { Pool, Client, types } from 'pg';
+import { Pool, Client, types, ClientConfig } from 'pg';
 import { IConnection } from "./IConnection";
 import { OutputChannel } from './outputChannel';
 
@@ -38,6 +38,14 @@ export interface TypeResults {
   fields?: FieldInfo[];
 }
 
+export class PgClient extends Client {
+  pg_version: number;
+
+  constructor(config?: string | ClientConfig) {
+    super(config);
+  }
+}
+
 export class Database {
 
   // could probably be simplified, essentially matches Postgres' built-in algorithm without the char pointers
@@ -65,7 +73,7 @@ export class Database {
     };
   }
 
-  public static async createConnection(connection: IConnection, dbname?: string): Promise<Client> {
+  public static async createConnection(connection: IConnection, dbname?: string): Promise<PgClient> {
     const connectionOptions: any = Object.assign({}, connection);
     connectionOptions.database = dbname ? dbname : connection.database;
     if (connectionOptions.certPath && fs.existsSync(connectionOptions.certPath)) {
@@ -74,8 +82,16 @@ export class Database {
       }
     }
 
-    let client = new Client(connectionOptions);
+    let client = new PgClient(connectionOptions);
     await client.connect();
+    const versionRes = await client.query(`SELECT current_setting('server_version_num') as ver_num;`);
+    /*
+    return res.rows.map<ColumnNode>(column => {
+      return new ColumnNode(this.connection, this.table, column);
+    });
+    */
+    let versionNumber = parseInt(versionRes.rows[0].ver_num);
+    client.pg_version = versionNumber;
     return client;
   }
 
@@ -84,7 +100,7 @@ export class Database {
     let title = path.basename(editor.document.fileName);
     let resultsUri = vscode.Uri.parse('postgres-results://' + uri);
 
-    let connection: Client = null;
+    let connection: PgClient = null;
     try {
       connection = await Database.createConnection(connectionOptions);
       const typeNamesQuery = `select oid, format_type(oid, typtypmod) as display_type, typname from pg_type`;

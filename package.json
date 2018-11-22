@@ -4,6 +4,7 @@
   "description": "PostgreSQL Management Tool",
   "version": "1.1.4",
   "publisher": "ckolkman",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/Borvik/vscode-postgres.git"

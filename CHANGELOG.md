@@ -2,6 +2,11 @@
 All notable changes to the "vscode-postgres" extension will be documented in this file.
 
 ## [Unreleased]
+### Added
+- Capability to better separate main queries by pg version
+
+### Fixed
+- Support of PG 11 in function explorer (issue #72)
 
 ## [1.1.4] - 2018-10-29
 ### Added
