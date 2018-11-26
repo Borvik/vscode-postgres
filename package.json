@@ -2,7 +2,7 @@
   "name": "vscode-postgres",
   "displayName": "PostgreSQL",
   "description": "PostgreSQL Management Tool",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "publisher": "ckolkman",
   "license": "MIT",
   "repository": {
