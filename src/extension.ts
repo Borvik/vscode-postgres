@@ -14,7 +14,7 @@ import { ResultsManager } from './resultsview/resultsManager';
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
-export function activate(context: vscode.ExtensionContext) {
+export async function activate(context: vscode.ExtensionContext) {
   
   // Use the console to output diagnostic information (console.log) and errors (console.error)
   // This line of code will only be executed once when your extension is activated
@@ -43,14 +43,19 @@ export function activate(context: vscode.ExtensionContext) {
   Global.ResultManager = new ResultsManager();
   context.subscriptions.push(Global.ResultManager);
 
-  vscode.workspace.onDidOpenTextDocument((e: vscode.TextDocument) => {
-    EditorState.setNonActiveConnection(e, null);
+  vscode.workspace.onDidOpenTextDocument(async (e: vscode.TextDocument) => {
+    await EditorState.setNonActiveConnection(e, null);
   });
 
   const configFS = new ConfigFS();
   context.subscriptions.push(vscode.workspace.registerFileSystemProvider('postgres-config', configFS, {isCaseSensitive: true}));
 
   // EditorState.connection = null;
+  // if (vscode.window && vscode.window.activeTextEditor) {
+  //   let doc = vscode.window.activeTextEditor ? vscode.window.activeTextEditor.document : null;
+  //   await EditorState.setNonActiveConnection(doc, null);
+  //   EditorState.getInstance().onDidChangeActiveTextEditor(vscode.window.activeTextEditor);
+  // }
 }
 
 // this method is called when your extension is deactivated
