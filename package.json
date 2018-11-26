@@ -4,6 +4,7 @@
   "description": "PostgreSQL Management Tool",
   "version": "1.1.4",
   "publisher": "ckolkman",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/Borvik/vscode-postgres.git"
@@ -15,12 +16,7 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:vscode-postgres.selectConnection",
-    "onCommand:vscode-postgres.addConnection",
-    "onCommand:vscode-postgres.newQuery",
-    "onLanguage:postgres",
-    "onView:postgres",
-    "onWebviewPanel:vscode-postgres.results"
+    "*"
   ],
   "main": "./out/extension",
   "contributes": {
@@ -48,6 +44,16 @@
       "type": "object",
       "title": "PostgreSQL",
       "properties": {
+        "vscode-postgres.defaultConnection": {
+          "type": "string",
+          "default": "",
+          "description": "The default connection to use"
+        },
+        "vscode-postgres.defaultDatabase": {
+          "type": "string",
+          "default": "",
+          "description": "The default database on the default connection to use"
+        },
         "vscode-postgres.showExplorer": {
           "type": "boolean",
           "default": true,

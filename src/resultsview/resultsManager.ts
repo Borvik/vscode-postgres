@@ -72,8 +72,7 @@ export class ResultsManager implements vscode.WebviewPanelSerializer {
 
     view.onDidChangeViewState(({ webviewPanel }) => {
       disposeAll(this._results.filter(otherView => view !== otherView && view!.matches(otherView)));
-
-      vscode.commands.executeCommand('setContext', ResultsManager.pgsqlResultContextKey, webviewPanel.visible);
+      vscode.commands.executeCommand('setContext', ResultsManager.pgsqlResultContextKey, webviewPanel.visible && webviewPanel.active);
 
       this._activeResults = webviewPanel.active ? view : undefined;
     });

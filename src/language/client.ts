@@ -26,7 +26,9 @@ export default class PostgreSQLLanguageClient {
     };
 
     this.client = new LanguageClient('postgres', 'PostgreSQL Service', serverOptions, clientOptions);
-    this.client.onReady().then(() => { EditorState.connection = null; });
+    this.client.onReady().then(async () => {
+      EditorState.connection = await EditorState.getDefaultConnection();
+    });
     let disposable = this.client.start();
     context.subscriptions.push(disposable);
   }

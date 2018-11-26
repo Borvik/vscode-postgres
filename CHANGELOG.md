@@ -3,6 +3,15 @@ All notable changes to the "vscode-postgres" extension will be documented in thi
 
 ## [Unreleased]
 
+## [1.1.5] - 2018-11-26
+### Added
+- Capability to better separate main queries by pg version
+- Support for default connections using settings which can be overridden at the project level (issue #69)
+  - To better support default connections, the extension now activates on start vs. when a view/language/command is accessed for the first time.
+
+### Fixed
+- Support of PG 11 in function explorer (issue #72)
+
 ## [1.1.4] - 2018-10-29
 ### Added
 - `Functions` virtual folder (must enable in configuration) by @lafriks
