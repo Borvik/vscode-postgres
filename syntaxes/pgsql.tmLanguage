@@ -129,7 +129,7 @@
 		</dict>
 		<dict>
 			<key>begin</key>
-			<string>(^[a-zA-Z]+)</string>
+			<string>(^\s*[a-zA-Z]+)</string>
 			<key>beginCaptures</key>
 			<dict>
 				<key>0</key>
