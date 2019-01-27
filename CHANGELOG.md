@@ -3,6 +3,10 @@ All notable changes to the "vscode-postgres" extension will be documented in thi
 
 ## [Unreleased]
 
+## [1.1.6] - 2018-11-26
+### Fixed
+- Syntax highlighting when first character of query is a space (issue #79) by @votagus.
+
 ## [1.1.5] - 2018-11-26
 ### Added
 - Capability to better separate main queries by pg version
