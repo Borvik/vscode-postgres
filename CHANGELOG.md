@@ -3,6 +3,10 @@ All notable changes to the "vscode-postgres" extension will be documented in thi
 
 ## [Unreleased]
 
+## [1.1.7] - 2019-03-05
+### Fixed
+- Delete results now properly show RETURNING data (issue #91).
+
 ## [1.1.6] - 2018-11-26
 ### Fixed
 - Syntax highlighting when first character of query is a space (issue #79) by @votagus.

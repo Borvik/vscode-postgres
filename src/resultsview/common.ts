@@ -163,7 +163,10 @@ function generateCreateResults(result: QueryResults): string {
 }
 
 function generateDeleteResults(result: QueryResults): string {
-  return getRowCountResult(result.rowCount, 'deleted', 'delete');
+  let html = getRowCountResult(result.rowCount, 'deleted', 'delete');
+  if (result.fields && result.fields.length && result.rows && result.rows.length)
+    html += generateSelectTableResult(result);
+  return html;
 }
 
 function getRowCountResult(rowCount: number, text: string, preClass: string): string {
