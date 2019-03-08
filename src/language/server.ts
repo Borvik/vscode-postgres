@@ -5,11 +5,20 @@ import {
   CompletionItem, CompletionItemKind,
   SignatureHelp, SignatureInformation, ParameterInformation
 } from 'vscode-languageserver';
-import { Client } from 'pg';
+import { Client, ClientConfig } from 'pg';
 import * as fs from 'fs';
 import { Validator } from './validator';
 import { IConnection as IDBConnection } from '../common/IConnection';
 import { BackwardIterator } from '../common/backwordIterator';
+import { SqlQueryManager } from '../queries';
+
+export class PgClient extends Client {
+  pg_version: number;
+
+  constructor(config?: string | ClientConfig) {
+    super(config);
+  }
+}
 
 export interface ISetConnection { 
   connection: IDBConnection
@@ -84,7 +93,7 @@ let databaseCache: string[] = [];
   */
 
 let connection: IConnection = createConnection(new IPCMessageReader(process), new IPCMessageWriter(process));
-let dbConnection: Client = null,
+let dbConnection: PgClient = null,
     dbConnOptions: IDBConnection = null;
 
 console.log = connection.console.log.bind(connection.console);
@@ -147,8 +156,11 @@ async function setupDBConnection(connectionOptions: IDBConnection, uri: string):
       };
     }
     
-    dbConnection = new Client(connectionOptions);
+    dbConnection = new PgClient(connectionOptions);
     await dbConnection.connect();
+    const versionRes = await dbConnection.query(`SELECT current_setting('server_version_num') as ver_num;`);
+    let versionNumber = parseInt(versionRes.rows[0].ver_num);
+    dbConnection.pg_version = versionNumber;
     dbConnection.on('end', dbConnectionEnded);
 
     loadCompletionCache(connectionOptions);
@@ -166,6 +178,7 @@ async function setupDBConnection(connectionOptions: IDBConnection, uri: string):
 async function loadCompletionCache(connectionOptions: IDBConnection) {
   if (!connectionOptions || !dbConnection) return;
   // setup database caches for schemas, functions, tables, and fields
+  let vQueries = SqlQueryManager.getVersionQueries(dbConnection.pg_version);
   try {
     if (connectionOptions.database) {
       let schemas = await dbConnection.query(`
@@ -253,29 +266,30 @@ async function loadCompletionCache(connectionOptions: IDBConnection) {
   }
 
   try {
-    let functions = await dbConnection.query(`
-      SELECT n.nspname as "schema",
-        p.proname as "name",
-        d.description,
-        pg_catalog.pg_get_function_result(p.oid) as "result_type",
-        pg_catalog.pg_get_function_arguments(p.oid) as "argument_types",
-      CASE
-        WHEN p.proisagg THEN 'agg'
-        WHEN p.proiswindow THEN 'window'
-        WHEN p.prorettype = 'pg_catalog.trigger'::pg_catalog.regtype THEN 'trigger'
-        ELSE 'normal'
-      END as "type"
-      FROM pg_catalog.pg_proc p
-          LEFT JOIN pg_catalog.pg_namespace n ON n.oid = p.pronamespace
-          LEFT JOIN pg_catalog.pg_description d ON p.oid = d.objoid
-      WHERE
-        pg_catalog.pg_function_is_visible(p.oid)
-        AND p.prorettype <> 'pg_catalog.trigger'::pg_catalog.regtype
-            AND n.nspname <> 'information_schema'
-        AND has_schema_privilege(quote_ident(n.nspname), 'CREATE, USAGE') = true
-        AND has_function_privilege(p.oid, 'execute') = true
-      ORDER BY 1, 2, 4;
-      `);
+    // let functions = await dbConnection.query(`
+    //   SELECT n.nspname as "schema",
+    //     p.proname as "name",
+    //     d.description,
+    //     pg_catalog.pg_get_function_result(p.oid) as "result_type",
+    //     pg_catalog.pg_get_function_arguments(p.oid) as "argument_types",
+    //   CASE
+    //     WHEN p.proisagg THEN 'agg'
+    //     WHEN p.proiswindow THEN 'window'
+    //     WHEN p.prorettype = 'pg_catalog.trigger'::pg_catalog.regtype THEN 'trigger'
+    //     ELSE 'normal'
+    //   END as "type"
+    //   FROM pg_catalog.pg_proc p
+    //       LEFT JOIN pg_catalog.pg_namespace n ON n.oid = p.pronamespace
+    //       LEFT JOIN pg_catalog.pg_description d ON p.oid = d.objoid
+    //   WHERE
+    //     pg_catalog.pg_function_is_visible(p.oid)
+    //     AND p.prorettype <> 'pg_catalog.trigger'::pg_catalog.regtype
+    //         AND n.nspname <> 'information_schema'
+    //     AND has_schema_privilege(quote_ident(n.nspname), 'CREATE, USAGE') = true
+    //     AND has_function_privilege(p.oid, 'execute') = true
+    //   ORDER BY 1, 2, 4;
+    //   `);
+    let functions = await dbConnection.query(vQueries.GetAllFunctions);
     
     functions.rows.forEach((fn:DBFunctionsRaw) => {
       // return new ColumnNode(this.connection, this.table, column);
