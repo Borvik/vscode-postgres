@@ -10,7 +10,7 @@
     "url": "https://github.com/Borvik/vscode-postgres.git"
   },
   "engines": {
-    "vscode": "^1.25.0"
+    "vscode": "^1.26.0"
   },
   "categories": [
     "Other"
@@ -334,9 +334,9 @@
     "@types/uuid": "^3.4.4",
     "ts-loader": "^4.5.0",
     "typescript": "^2.9.2",
-    "vscode": "^1.1.21",
-    "webpack": "^4.17.1",
-    "webpack-cli": "^3.1.0"
+    "vscode": "^1.1.30",
+    "webpack": "^4.29.6",
+    "webpack-cli": "^3.3.0"
   },
   "dependencies": {
     "csv-stringify": "^3.1.1",
