@@ -2,6 +2,12 @@
 All notable changes to the "vscode-postgres" extension will be documented in this file.
 
 ## [Unreleased]
+### Changed
+- Add DB connection process has been altered to be more user friendly. Also fixes ssl cert issues (issue #66).
+
+## [1.1.8] - 2019-03-08
+### Fixed
+- PG 11 Version issues for language server (issue #92).
 
 ## [1.1.7] - 2019-03-05
 ### Fixed
