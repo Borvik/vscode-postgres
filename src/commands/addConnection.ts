@@ -145,7 +145,6 @@ export class addConnectionCommand extends BaseCommand {
 
     let databases: DatabaseQuickPickItem[] = [];
     let connectionError: any = null;
-    let unableToEnumerateDatabases: boolean = false;
     try {
       connection = await Database.createConnection({
         label: '',
@@ -161,29 +160,52 @@ export class addConnectionCommand extends BaseCommand {
       if (err.message === `permission denied for database "postgres"`) {
         // Heroku message anyway... probably varies
         // is there another common parameter could be checked?
-        unableToEnumerateDatabases = true;
       } else {
-        connectionError = err;
-        vscode.window.showErrorMessage(err.message);
+        // vscode.window.showErrorMessage(err.message);
       }
     } finally {
       if (connection) {
         await connection.end();
+        connection = null;
       }
     }
 
-    if (unableToEnumerateDatabases) {
+    if (databases.length < 1) {
       // specify database via text input - may not have permission to list databases
-      state.database = await input.showInputBox({
-        title: this.TITLE,
-        step: input.CurrentStepNumber,
-        totalSteps: this.TotalSteps,
-        prompt: '[Optional] The database to connect to. Leave empty to enumerate databases on the server',
-        placeholder: '',
-        ignoreFocusOut: true,
-        value: (typeof state.database === 'string') ? state.database : '',
-        validate: async (value) => ''
-      });
+      let connectionOK = false;
+      do {
+        state.database = await input.showInputBox({
+          title: this.TITLE,
+          step: input.CurrentStepNumber,
+          totalSteps: this.TotalSteps,
+          prompt: '[Optional] The database to connect to. Leave empty to enumerate databases on the server',
+          placeholder: '',
+          ignoreFocusOut: true,
+          value: (typeof state.database === 'string') ? state.database : '',
+          validate: async (value) => ''
+        });
+
+        try {
+          let databaseToTry = state.database && state.database.trim() ? state.database : 'postgres';
+          connection = await Database.createConnection({
+            label: '',
+            host: state.host,
+            user: state.user,
+            password: state.password,
+            port: state.port,
+            ssl: state.secure
+          }, databaseToTry);
+          connectionOK = true;
+        } catch(err) {
+          connectionError = err;
+          vscode.window.showErrorMessage(err.message);
+        } finally {
+          if (connection) {
+            await connection.end();
+            connection = null;
+          }
+        }
+      } while(!connectionOK)
       return (input: MultiStepInput) => this.setDisplayName(input, state);
     }
 
@@ -191,13 +213,9 @@ export class addConnectionCommand extends BaseCommand {
       input.redoLastStep();
     }
 
-    if (databases.length < 1) {
-      return;
-    }
-
     databases.unshift({label: 'Show All Databases'});
 
-    let active = databases.find(d => d.label === state.database);
+    let active = databases.find(d => d.dbname && d.dbname === state.database);
     let selected = await input.showQuickPick({
       title: this.TITLE,
       step: input.CurrentStepNumber,
