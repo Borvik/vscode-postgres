@@ -3,6 +3,10 @@ All notable changes to the "vscode-postgres" extension will be documented in thi
 
 ## [Unreleased]
 
+## [1.1.11] - 2019-08-10
+### Fixed
+- Sidebar icon has been updated and should now size correctly for vscode 1.37.0.
+
 ## [1.1.10] - 2019-04-12
 ### Fixed
 - Add DB connection process now handles more issues with connecting to a possibly secured `postgres` database (issue #97).
