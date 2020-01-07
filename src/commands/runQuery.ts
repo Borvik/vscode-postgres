@@ -3,6 +3,7 @@ import * as vscode from 'vscode';
 import { IConnection } from "../common/IConnection";
 import { EditorState } from "../common/editorState";
 import { Database } from "../common/database";
+import { Global } from '../common/global';
 
 'use strict';
 
@@ -18,37 +19,41 @@ export class runQueryCommand extends BaseCommand {
       vscode.window.showWarningMessage('No PostgreSQL Server or Database selected');
       return;
     }
-
+    
+    let config = Global.Configuration;
     let editor = vscode.window.activeTextEditor;
     let querySelection = null;
 
-    // Calculate the selection if we have a selection, otherwise we'll use null to indicate
-    // the entire document is the selection
-    if (!editor.selection.isEmpty) {
+    if (config.get<boolean>('queryMethod')){
       let selection = editor.selection;
-      querySelection = {
-        startLine: selection.start.line,
-        startColumn: selection.start.character,
-        endLine: selection.end.line,
-        endColumn: selection.end.character
+      querySelection = selection
+
+      if (!editor.selection.isEmpty) {
+        querySelection._start._character = editor.document.lineAt(querySelection.start.line).range.start.character
+        querySelection._end._character = editor.document.lineAt(querySelection.end.line).range.end.character
+      } 
+      else {
+        querySelection._start._line = querySelection.active.line
+        querySelection._start._character = editor.document.lineAt(querySelection.active.line).range.start.character
+        querySelection._end._line = querySelection.active.line
+        querySelection._end._character = editor.document.lineAt(querySelection.active.line).range.end.character
       }
-    } else {
-      querySelection = {
-        startLine: 0,
-        startColumn: 0,
-        endLine: editor.document.lineCount
-        //endColumn: editor.document.lineAt(editor.document.lineCount).range.end.
+
+      if (querySelection.start.character === 0 && querySelection.end.character === 0 && querySelection.isEmpty) {
+        vscode.window.showWarningMessage('No SQL found to run');
+        return;
+      }
+    }
+    else {
+      querySelection = editor.selection.isEmpty ? undefined : editor.selection;
+      if (editor.document.getText(querySelection).trim().length === 0) {
+        vscode.window.showWarningMessage('No SQL found to run');
+        return;
       }
     }
 
-    // Trim down the selection. If it is empty after selecting, then we don't execute
-    let selectionToTrim = editor.selection.isEmpty ? undefined : editor.selection;
-    if (editor.document.getText(selectionToTrim).trim().length === 0) {
-      vscode.window.showWarningMessage('No SQL found to run');
-      return;
-    }
-
-    let sql = editor.document.getText(selectionToTrim);
+    vscode.window.showWarningMessage('OK');
+    let sql = editor.document.getText(querySelection);
     return Database.runQuery(sql, editor, connection);
   }
 }
