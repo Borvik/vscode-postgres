@@ -197,7 +197,7 @@
         },
         {
           "command": "vscode-postgres.runQuery",
-          "when": "editorLangId != postgres && editorHasSelection && !editorHasMultipleSelections"
+          "when": "editorLangId != postgres && config.vscode-postgres.defaultConnection != '' && config.vscode-postgres.defaultDatabase != '' && editorHasSelection && !editorHasMultipleSelections"
         },
         {
           "command": "vscode-postgres.selectTop",
@@ -215,7 +215,7 @@
       "editor/context": [
         {
           "command": "vscode-postgres.runQuery",
-          "when": "editorLangId != postgres && editorHasSelection && !editorHasMultipleSelections",
+          "when": "editorLangId != postgres && config.vscode-postgres.defaultConnection != '' && config.vscode-postgres.defaultDatabase != '' && editorHasSelection && !editorHasMultipleSelections",
           "group": "navigation"
         },
         {
