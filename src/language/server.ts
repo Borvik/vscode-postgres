@@ -1,10 +1,11 @@
 import {
   IPCMessageReader, IPCMessageWriter, createConnection, IConnection,
-  TextDocuments, TextDocument, InitializeResult,
-  Diagnostic, DiagnosticSeverity, TextDocumentPositionParams,
+  TextDocuments, InitializeResult,
+  Diagnostic, DiagnosticSeverity, 
   CompletionItem, CompletionItemKind,
-  SignatureHelp, SignatureInformation, ParameterInformation
+  SignatureHelp, SignatureInformation, ParameterInformation, TextDocumentSyncKind
 } from 'vscode-languageserver';
+import { TextDocument } from 'vscode-languageserver-textdocument';
 import { Client, ClientConfig } from 'pg';
 import * as fs from 'fs';
 import { Validator } from './validator';
@@ -99,7 +100,7 @@ let dbConnection: PgClient = null,
 console.log = connection.console.log.bind(connection.console);
 console.error = connection.console.error.bind(connection.console);
 
-let documents: TextDocuments = new TextDocuments();
+let documents = new TextDocuments(TextDocument);
 documents.listen(connection);
 
 let shouldSendDiagnosticRelatedInformation: boolean = false;
@@ -108,7 +109,7 @@ connection.onInitialize((_params) : InitializeResult => {
   shouldSendDiagnosticRelatedInformation = _params.capabilities && _params.capabilities.textDocument && _params.capabilities.textDocument.publishDiagnostics && _params.capabilities.textDocument.publishDiagnostics.relatedInformation;
   return {
     capabilities: {
-      textDocumentSync: documents.syncKind,
+      textDocumentSync: TextDocumentSyncKind.Full,
       completionProvider: {
         triggerCharacters: [' ', '.', '"']
       },
