@@ -3,6 +3,10 @@ All notable changes to the "vscode-postgres" extension will be documented in thi
 
 ## [Unreleased]
 
+## [1.1.12] - 2020-10-17
+### Fixed
+- `[DEP0005] DeprecationWarning: Buffer()` (issue #147) - thanks in large part to @alisabzevari
+
 ## [1.1.11] - 2019-08-10
 ### Fixed
 - Sidebar icon has been updated and should now size correctly for vscode 1.37.0.
