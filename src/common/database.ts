@@ -1,7 +1,8 @@
 import * as fs from 'fs';
 import * as vscode from 'vscode';
 import * as path from 'path';
-import { Pool, Client, types, ClientConfig } from 'pg';
+// import { Pool, Client, types, ClientConfig } from 'pg';
+import { PgClient } from './connection';
 import { IConnection } from "./IConnection";
 import { OutputChannel } from './outputChannel';
 
@@ -36,14 +37,6 @@ export interface TypeResults {
   command: string;
   rows?: TypeResult[];
   fields?: FieldInfo[];
-}
-
-export class PgClient extends Client {
-  pg_version: number;
-
-  constructor(config?: string | ClientConfig) {
-    super(config);
-  }
 }
 
 export class Database {

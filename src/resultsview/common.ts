@@ -250,8 +250,17 @@ function formatFieldValue(field: FieldInfo, value: any): string {
   return formatted;
 }
 
+function base64Entities(str: string): string {
+  let ret = atob(str);
+  return ret;
+}
+
 function htmlEntities(str: string): string {
   if (typeof str !== 'string') return str;
+  // console.log('String:', str);
+  // for (let i = 0; i < str.length; i++) {
+  //   console.log('  ', str[i], ' - ', str[i].charCodeAt(0));
+  // }
   return str ? str.replace(/[\u00A0-\u9999<>\&"']/gim, (i) => `&#${i.charCodeAt(0)};`) : undefined;
 }
 
