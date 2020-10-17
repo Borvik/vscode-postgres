@@ -3,6 +3,10 @@ All notable changes to the "vscode-postgres" extension will be documented in thi
 
 ## [Unreleased]
 
+## [1.1.13] - 2020-10-17
+### Fixed
+- Emergency update of dependencies
+
 ## [1.1.12] - 2020-10-17
 ### Fixed
 - `[DEP0005] DeprecationWarning: Buffer()` (issue #147) - thanks in large part to @alisabzevari
