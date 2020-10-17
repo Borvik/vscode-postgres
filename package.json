@@ -320,7 +320,6 @@
     "vscode:prepublish": "npm run build-preview && npm run compile",
     "compile": "tsc -p ./",
     "watch": "npm run build-preview-dev && tsc -watch -p ./",
-    "test": "npm run compile && node ./out/test/index.js",
     "build-preview-dev": "npx webpack --mode development",
     "build-preview": "npx webpack --mode production"
   },
@@ -332,12 +331,9 @@
     "@types/pg": "^7.4.10",
     "@types/uuid": "^3.4.4",
     "@types/vscode": "^1.50.0",
-    "glob": "^7.1.6",
-    "mocha": "^4.1.0",
     "ts-loader": "^4.5.0",
     "typescript": "^4.0.3",
     "vscode-languageserver-textdocument": "^1.0.1",
-    "vscode-test": "^1.4.0",
     "webpack": "^4.29.6",
     "webpack-cli": "^3.3.0"
   },
