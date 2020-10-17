@@ -11,7 +11,7 @@ export default class PostgreSQLLanguageClient {
 
   constructor(context: ExtensionContext) {
     let serverModule = context.asAbsolutePath(path.join('out', 'language', 'server.js'));
-    let debugOptions = { execArgv: ['--nolazy', '--debug=6005', '--inspect'] };
+    let debugOptions = { execArgv: ['--nolazy', '--inspect=6005'] };
 
     let serverOptions: ServerOptions = {
       run: { module: serverModule, transport: TransportKind.ipc },
