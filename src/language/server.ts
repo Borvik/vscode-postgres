@@ -1,25 +1,17 @@
 import {
   IPCMessageReader, IPCMessageWriter, createConnection, IConnection,
   TextDocuments, InitializeResult,
-  Diagnostic, DiagnosticSeverity, 
+  Diagnostic, DiagnosticSeverity, TextDocumentPositionParams,
   CompletionItem, CompletionItemKind,
   SignatureHelp, SignatureInformation, ParameterInformation, TextDocumentSyncKind
 } from 'vscode-languageserver';
-import { TextDocument } from 'vscode-languageserver-textdocument';
-import { Client, ClientConfig } from 'pg';
+import { PgClient } from '../common/connection';
 import * as fs from 'fs';
 import { Validator } from './validator';
 import { IConnection as IDBConnection } from '../common/IConnection';
 import { BackwardIterator } from '../common/backwordIterator';
 import { SqlQueryManager } from '../queries';
-
-export class PgClient extends Client {
-  pg_version: number;
-
-  constructor(config?: string | ClientConfig) {
-    super(config);
-  }
-}
+import { TextDocument } from 'vscode-languageserver-textdocument';
 
 export interface ISetConnection { 
   connection: IDBConnection
@@ -100,7 +92,8 @@ let dbConnection: PgClient = null,
 console.log = connection.console.log.bind(connection.console);
 console.error = connection.console.error.bind(connection.console);
 
-let documents = new TextDocuments(TextDocument);
+let documents: TextDocuments<TextDocument> = new TextDocuments<TextDocument>(TextDocument);
+
 documents.listen(connection);
 
 let shouldSendDiagnosticRelatedInformation: boolean = false;
@@ -347,7 +340,7 @@ connection.onRequest('set_connection', async function() {
     return;
   }
 
-  if (dbConnection) {
+  if (dbConnection && !dbConnection.is_ended) {
     // kill the connection first
     await dbConnection.end();
   }

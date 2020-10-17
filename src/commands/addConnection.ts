@@ -3,10 +3,11 @@ import * as vscode from 'vscode';
 import { PostgreSQLTreeDataProvider } from "../tree/treeProvider";
 import { IConnection } from "../common/IConnection";
 import { Constants } from "../common/constants";
-import * as uuidv1 from "uuid/v1";
+import { v1 as uuidv1 } from 'uuid';
 import { Global } from "../common/global";
 import { MultiStepInput, InputFlowAction } from "../common/multiStepInput";
-import { Database, PgClient } from "../common/database";
+import { Database } from "../common/database";
+import { PgClient } from '../common/connection';
 
 'use strict';
 
