@@ -332,8 +332,8 @@
     "@types/vscode": "^1.50.0",
     "ts-loader": "^8.0.4",
     "typescript": "^4.0.3",
-    "webpack": "^4.44.1",
-    "webpack-cli": "^3.3.12"
+    "webpack": "^5.1.3",
+    "webpack-cli": "^4.0.0"
   },
   "dependencies": {
     "csv-stringify": "^5.5.1",
