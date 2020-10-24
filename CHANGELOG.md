@@ -3,6 +3,10 @@ All notable changes to the "vscode-postgres" extension will be documented in thi
 
 ## [Unreleased]
 
+## [1.1.14] - 2020-10-24
+### Fixed
+- Update `pg` caused SSL mode to break for self-signed certs (issue #154), added `rejectUnauthorized: false`
+
 ## [1.1.13] - 2020-10-17
 ### Fixed
 - Emergency update of dependencies

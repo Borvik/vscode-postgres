@@ -71,8 +71,13 @@ export class Database {
     connectionOptions.database = dbname ? dbname : connection.database;
     if (connectionOptions.certPath && fs.existsSync(connectionOptions.certPath)) {
       connectionOptions.ssl = {
-        ca: fs.readFileSync(connectionOptions.certPath).toString()
+        ca: fs.readFileSync(connectionOptions.certPath).toString(),
+        rejectUnauthorized: false,
       }
+    }
+
+    if (connectionOptions.ssl === true) {
+      connectionOptions.ssl = {rejectUnauthorized: false};
     }
 
     let client = new PgClient(connectionOptions);

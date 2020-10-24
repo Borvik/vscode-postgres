@@ -132,7 +132,8 @@ async function setupDBConnection(connectionOptions: IDBConnection, uri: string):
     // dbConnection = await Database.createConnection(conn);
     if (connectionOptions.certPath && fs.existsSync(connectionOptions.certPath)) {
       connectionOptions.ssl = {
-        ca: fs.readFileSync(connectionOptions.certPath).toString()
+        ca: fs.readFileSync(connectionOptions.certPath).toString(),
+        rejectUnauthorized: false,
       }
     }
 
@@ -148,6 +149,10 @@ async function setupDBConnection(connectionOptions: IDBConnection, uri: string):
         certPath: connectionOptions.certPath,
         ssl: connectionOptions.ssl
       };
+    }
+
+    if (connectionOptions.ssl === true) {
+      connectionOptions.ssl = {rejectUnauthorized: false};
     }
     
     dbConnection = new PgClient(connectionOptions);
