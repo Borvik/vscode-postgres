@@ -214,31 +214,36 @@ async function loadCompletionCache(connectionOptions: IDBConnection) {
         FROM
           (
             SELECT
-              schemaname,
-              tablename,
-              (quote_ident(schemaname) || '.' || quote_ident(tablename)) as quoted_name,
+              n.nspname as schemaname,
+              c.relname as tablename,
+              (quote_ident(n.nspname) || '.' || quote_ident(c.relname)) as quoted_name,
               true as is_table
             FROM
-              pg_tables
+              pg_catalog.pg_class c
+              JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
             WHERE
-              schemaname not in ('information_schema', 'pg_catalog', 'pg_toast')
-              AND schemaname not like 'pg_temp_%'
-              AND schemaname not like 'pg_toast_temp_%'
-              AND has_schema_privilege(quote_ident(schemaname), 'CREATE, USAGE') = true
-              AND has_table_privilege(quote_ident(schemaname) || '.' || quote_ident(tablename), 'SELECT, INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER') = true
+              c.relkind = 'r'
+              AND n.nspname not in ('information_schema', 'pg_catalog', 'pg_toast')
+              AND n.nspname not like 'pg_temp_%'
+              AND n.nspname not like 'pg_toast_temp_%'
+              AND has_schema_privilege(n.oid, 'USAGE') = true
+              AND has_table_privilege(quote_ident(n.nspname) || '.' || quote_ident(c.relname), 'SELECT, INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER') = true
             union all
             SELECT
-              schemaname,
-              viewname as tablename,
-              (quote_ident(schemaname) || '.' || quote_ident(viewname)) as quoted_name,
+              n.nspname as schemaname,
+              c.relname as tablename,
+              (quote_ident(n.nspname) || '.' || quote_ident(c.relname)) as quoted_name,
               false as is_table
-            FROM pg_views
+            FROM
+              pg_catalog.pg_class c
+              JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
             WHERE
-              schemaname not in ('information_schema', 'pg_catalog', 'pg_toast')
-              AND schemaname not like 'pg_temp_%'
-              AND schemaname not like 'pg_toast_temp_%'
-              AND has_schema_privilege(quote_ident(schemaname), 'CREATE, USAGE') = true
-              AND has_table_privilege(quote_ident(schemaname) || '.' || quote_ident(viewname), 'SELECT, INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER') = true
+              c.relkind in ('v', 'm')
+              AND n.nspname not in ('information_schema', 'pg_catalog', 'pg_toast')
+              AND n.nspname not like 'pg_temp_%'
+              AND n.nspname not like 'pg_toast_temp_%'
+              AND has_schema_privilege(n.oid, 'USAGE') = true
+              AND has_table_privilege(quote_ident(n.nspname) || '.' || quote_ident(c.relname), 'SELECT, INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER') = true
           ) as tbl
           LEFT JOIN (
             SELECT
@@ -265,29 +270,6 @@ async function loadCompletionCache(connectionOptions: IDBConnection) {
   }
 
   try {
-    // let functions = await dbConnection.query(`
-    //   SELECT n.nspname as "schema",
-    //     p.proname as "name",
-    //     d.description,
-    //     pg_catalog.pg_get_function_result(p.oid) as "result_type",
-    //     pg_catalog.pg_get_function_arguments(p.oid) as "argument_types",
-    //   CASE
-    //     WHEN p.proisagg THEN 'agg'
-    //     WHEN p.proiswindow THEN 'window'
-    //     WHEN p.prorettype = 'pg_catalog.trigger'::pg_catalog.regtype THEN 'trigger'
-    //     ELSE 'normal'
-    //   END as "type"
-    //   FROM pg_catalog.pg_proc p
-    //       LEFT JOIN pg_catalog.pg_namespace n ON n.oid = p.pronamespace
-    //       LEFT JOIN pg_catalog.pg_description d ON p.oid = d.objoid
-    //   WHERE
-    //     pg_catalog.pg_function_is_visible(p.oid)
-    //     AND p.prorettype <> 'pg_catalog.trigger'::pg_catalog.regtype
-    //         AND n.nspname <> 'information_schema'
-    //     AND has_schema_privilege(quote_ident(n.nspname), 'CREATE, USAGE') = true
-    //     AND has_function_privilege(p.oid, 'execute') = true
-    //   ORDER BY 1, 2, 4;
-    //   `);
     let functions = await dbConnection.query(vQueries.GetAllFunctions);
     
     functions.rows.forEach((fn:DBFunctionsRaw) => {

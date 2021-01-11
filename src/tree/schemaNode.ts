@@ -36,23 +36,21 @@ export class SchemaNode implements INode {
     try {
       const res = await connection.query(`
       SELECT
-          tablename as name,
-          true as is_table,
-          schemaname AS schema
-        FROM pg_tables
-        WHERE 
-          schemaname = $1
-          AND has_table_privilege(quote_ident(schemaname) || '.' || quote_ident(tablename), 'SELECT, INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER') = true
-      UNION ALL
-      SELECT
-          viewname as name,
-          false as is_table,
-          schemaname AS schema
-        FROM pg_views
-        WHERE 
-          schemaname = $1
-          AND has_table_privilege(quote_ident(schemaname) || '.' || quote_ident(viewname), 'SELECT, INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER') = true
-      ORDER BY name;`, [this.schemaName]);
+        c.relname as "name",
+        CASE 
+          WHEN c.relkind = 'r' THEN TRUE
+          ELSE FALSE
+        END as is_table,
+        n.nspname as "schema"
+      FROM
+        pg_catalog.pg_class c
+        JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
+      WHERE
+        c.relkind in ('r', 'v', 'm')
+        AND n.nspname = $1
+        AND has_table_privilege(quote_ident(n.nspname) || '.' || quote_ident(c.relname), 'SELECT, INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER') = true
+      ORDER BY
+        c.relname;`, [this.schemaName]);
 
       let childs = [];
       if (configVirtFolders != null)
