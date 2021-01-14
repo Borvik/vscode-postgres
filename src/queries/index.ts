@@ -36,7 +36,7 @@ let queries = {
           LEFT JOIN pg_catalog.pg_description d ON p.oid = d.objoid
       WHERE n.nspname = $1
         AND p.prorettype <> 'pg_catalog.trigger'::pg_catalog.regtype
-        AND has_schema_privilege(quote_ident(n.nspname), 'USAGE') = true
+        AND has_schema_privilege(n.oid, 'USAGE') = true
         AND has_function_privilege(p.oid, 'execute') = true
       ORDER BY 1, 2, 4;`,
     GetAllFunctions:
@@ -57,7 +57,7 @@ let queries = {
       WHERE n.nspname <> 'information_schema'
         AND pg_catalog.pg_function_is_visible(p.oid)
         AND p.prorettype <> 'pg_catalog.trigger'::pg_catalog.regtype
-        AND has_schema_privilege(quote_ident(n.nspname), 'USAGE') = true
+        AND has_schema_privilege(n.oid, 'USAGE') = true
         AND has_function_privilege(p.oid, 'execute') = true
       ORDER BY 1, 2, 4;`,
     TableColumns: 
@@ -174,7 +174,7 @@ let queries = {
           LEFT JOIN pg_catalog.pg_description d ON p.oid = d.objoid
       WHERE n.nspname = $1
         AND p.prorettype <> 'pg_catalog.trigger'::pg_catalog.regtype
-        AND has_schema_privilege(quote_ident(n.nspname), 'USAGE') = true
+        AND has_schema_privilege(n.oid, 'USAGE') = true
         AND has_function_privilege(p.oid, 'execute') = true
       ORDER BY 1, 2, 4;`,
     GetAllFunctions: `
@@ -195,7 +195,7 @@ let queries = {
       WHERE n.nspname <> 'information_schema'
         AND pg_catalog.pg_function_is_visible(p.oid)
         AND p.prorettype <> 'pg_catalog.trigger'::pg_catalog.regtype
-        AND has_schema_privilege(quote_ident(n.nspname), 'USAGE') = true
+        AND has_schema_privilege(n.oid, 'USAGE') = true
         AND has_function_privilege(p.oid, 'execute') = true
       ORDER BY 1, 2, 4;`
   }
