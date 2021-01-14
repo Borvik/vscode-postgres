@@ -3,6 +3,11 @@ All notable changes to the "vscode-postgres" extension will be documented in thi
 
 ## [Unreleased]
 
+## [1.1.15] - 2021-01-14
+### Fixed
+- Updated queries for breaking `has_schema_privilege` calls (issues #161, #129)
+- Query updates to allow for materialized views to show (issue #112)
+
 ## [1.1.14] - 2020-10-24
 ### Fixed
 - Update `pg` caused SSL mode to break for self-signed certs (issue #154), added `rejectUnauthorized: false`
