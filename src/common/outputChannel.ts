@@ -14,8 +14,9 @@ export class OutputChannel {
     OutputChannel.outputChannel.appendLine(value);
   }
 
-  public static displayResults(uri: vscode.Uri, title: string, res: QueryResults[]): void {
+  public static displayResults(uri: vscode.Uri, title: string, res: QueryResults[], showInCurrentPanel: boolean = false): void {
     let viewColumn = OutputChannel.getViewColumn();
+    if (showInCurrentPanel) viewColumn -= 1;
     Global.ResultManager.showResults(uri, viewColumn, res);
   }
 

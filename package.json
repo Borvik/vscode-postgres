@@ -161,8 +161,48 @@
         "category": "PostgreSQL"
       },
       {
+        "command": "vscode-postgres.selectTopWithNames",
+        "title": "Select Top With Names...",
+        "category": "PostgreSQL"
+      },
+      {
+        "command": "vscode-postgres.selectTop1000WithNames",
+        "title": "Select Top 1000 With Names",
+        "category": "PostgreSQL"
+      },
+      {
+        "command": "vscode-postgres.runSelectTop",
+        "title": "Run Select Top...",
+        "category": "PostgreSQL"
+      },
+      {
+        "command": "vscode-postgres.runSelectTop1000",
+        "title": "Run Select Top 1000",
+        "category": "PostgreSQL"
+      },
+      {
         "command": "vscode-postgres.runQuery",
         "title": "Run Query",
+        "category": "PostgreSQL"
+      },
+      {
+        "command": "vscode-postgres.copyColumnName",
+        "title": "Copy column name",
+        "category": "PostgreSQL"
+      },
+      {
+        "command": "vscode-postgres.copyFunctionName",
+        "title": "Copy function name",
+        "category": "PostgreSQL"
+      },
+      {
+        "command": "vscode-postgres.copySchemaName",
+        "title": "Copy schema name",
+        "category": "PostgreSQL"
+      },
+      {
+        "command": "vscode-postgres.copyTableName",
+        "title": "Copy table name",
         "category": "PostgreSQL"
       },
       {
@@ -205,6 +245,38 @@
         },
         {
           "command": "vscode-postgres.selectTop1000",
+          "when": "config.vscode-postgres.never"
+        },
+        {
+          "command": "vscode-postgres.selectTopWithNames",
+          "when": "config.vscode-postgres.never"
+        },
+        {
+          "command": "vscode-postgres.selectTop1000WithNames",
+          "when": "config.vscode-postgres.never"
+        },
+        {
+          "command": "vscode-postgres.runSelectTop",
+          "when": "config.vscode-postgres.never"
+        },
+        {
+          "command": "vscode-postgres.runSelectTop1000",
+          "when": "config.vscode-postgres.never"
+        },
+        {
+          "command": "vscode-postgres.copyColumnName",
+          "when": "config.vscode-postgres.never"
+        },
+        {
+          "command": "vscode-postgres.copyFunctionName",
+          "when": "config.vscode-postgres.never"
+        },
+        {
+          "command": "vscode-postgres.copyTableName",
+          "when": "config.vscode-postgres.never"
+        },
+        {
+          "command": "vscode-postgres.copySchemaName",
           "when": "config.vscode-postgres.never"
         },
         {
@@ -286,17 +358,66 @@
           "group": "postgres@1"
         },
         {
-          "command": "vscode-postgres.selectTop",
+          "command": "vscode-postgres.copyColumnName",
+          "when": "view == postgres && viewItem == vscode-postgres.tree.column",
+          "group": "postgres@1"
+        },
+        {
+          "command": "vscode-postgres.copyFunctionName",
+          "when": "view == postgres && viewItem == vscode-postgres.tree.function",
+          "group": "postgres@1"
+        },
+        {
+          "command": "vscode-postgres.copySchemaName",
+          "when": "view == postgres && viewItem == vscode-postgres.tree.schema",
+          "group": "postgres@1"
+        },
+        {
+          "command": "vscode-postgres.copyTableName",
           "when": "view == postgres && viewItem == vscode-postgres.tree.table",
-          "group": "postgres@2"
+          "group": "postgres@1"
+        },
+        {
+          "submenu": "postgres.select",
+          "when": "view == postgres && viewItem == vscode-postgres.tree.table",
+          "group": "postgres@0"
+        }
+      ],
+      "postgres.select": [
+        {
+          "command": "vscode-postgres.runSelectTop",
+          "group": "postgres@0"
+        },
+        {
+          "command": "vscode-postgres.runSelectTop1000",
+          "group": "postgres@0"
+        },
+        {
+          "command": "vscode-postgres.selectTop",
+          "alt": "vscode-postgres.runSelectTop",
+          "group": "postgres@1"
         },
         {
           "command": "vscode-postgres.selectTop1000",
-          "when": "view == postgres && viewItem == vscode-postgres.tree.table",
+          "alt": "vscode-postgres.runSelectTop1000",
+          "group": "postgres@1"
+        },
+        {
+          "command": "vscode-postgres.selectTopWithNames",
+          "group": "postgres@2"
+        },
+        {
+          "command": "vscode-postgres.selectTop1000WithNames",
           "group": "postgres@2"
         }
       ]
     },
+    "submenus": [
+      {
+        "id": "postgres.select",
+        "label": "Select..."
+      }
+    ],
     "viewsContainers": {
       "activitybar": [
         {

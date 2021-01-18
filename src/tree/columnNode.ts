@@ -6,7 +6,7 @@ import { TreeItem, TreeItemCollapsibleState } from "vscode";
 
 export class ColumnNode implements INode {
   
-  constructor(private readonly connection: IConnection, private readonly tablename: string, private readonly column: IColumn) {}
+  constructor(private readonly connection: IConnection, private readonly tablename: string, public readonly column: IColumn) {}
 
   public async getChildren(): Promise<INode[]> { return []; }
   public getTreeItem(): TreeItem {

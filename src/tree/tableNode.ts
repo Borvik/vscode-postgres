@@ -14,6 +14,7 @@ export class TableNode implements INode {
   constructor(public readonly connection: IConnection
             , public readonly table: string
             , public readonly is_table: boolean
+            , public readonly is_foreign: boolean
             , public readonly schema?: string)
   {}
 
@@ -24,13 +25,16 @@ export class TableNode implements INode {
   }
 
   public getTreeItem(): TreeItem {
+    let iconName = 'table';
+    if (this.is_table && this.is_foreign) iconName = 'fdw_table';
+    else if (!this.is_table) iconName = 'view';
     return {
       label: this.table,
       collapsibleState: TreeItemCollapsibleState.Collapsed,
       contextValue: 'vscode-postgres.tree.table',
       iconPath: {
-        light: path.join(__dirname, `../../resources/light/${this.is_table ? 'table' : 'view'}.svg`),
-        dark: path.join(__dirname, `../../resources/dark/${this.is_table ? 'table' : 'view'}.svg`)
+        light: path.join(__dirname, `../../resources/light/${iconName}.svg`),
+        dark: path.join(__dirname, `../../resources/dark/${iconName}.svg`)
       }
     };
   }

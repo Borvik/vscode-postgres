@@ -10,7 +10,7 @@ import { FunctionFolderNode } from './funcFolderNode';
 
 export class SchemaNode implements INode {
 
-  constructor(private readonly connection: IConnection, private readonly schemaName: string) {}
+  constructor(private readonly connection: IConnection, public readonly schemaName: string) {}
   
   public getTreeItem(): TreeItem {
     return {
@@ -37,16 +37,14 @@ export class SchemaNode implements INode {
       const res = await connection.query(`
       SELECT
         c.relname as "name",
-        CASE 
-          WHEN c.relkind = 'r' THEN TRUE
-          ELSE FALSE
-        END as is_table,
+        (c.relkind IN ('r', 'f')) as is_table,
+        (c.relkind = 'f') as is_foreign,
         n.nspname as "schema"
       FROM
         pg_catalog.pg_class c
         JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
       WHERE
-        c.relkind in ('r', 'v', 'm')
+        c.relkind in ('r', 'v', 'm', 'f')
         AND n.nspname = $1
         AND has_table_privilege(quote_ident(n.nspname) || '.' || quote_ident(c.relname), 'SELECT, INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER') = true
       ORDER BY
@@ -61,7 +59,13 @@ export class SchemaNode implements INode {
       }
       // Append tables under virtual folders
       return childs.concat(res.rows.map<TableNode>(table => {
-        return new TableNode(this.connection, table.name, table.is_table, table.schema);
+        return new TableNode(
+          this.connection,
+          table.name,
+          table.is_table,
+          table.is_foreign,
+          table.schema
+        );
       }));
     } catch(err) {
       return [new InfoNode(err)];

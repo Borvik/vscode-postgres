@@ -3,6 +3,14 @@ All notable changes to the "vscode-postgres" extension will be documented in thi
 
 ## [Unreleased]
 
+## [1.1.16] - 2021-01-18
+### Added
+- Foreign table support
+- Ability to copy schema, table, column, and function names to the clipboard
+
+### Changed
+- Select [x] right click options - moved to submenu with extra options
+
 ## [1.1.15] - 2021-01-14
 ### Fixed
 - Updated queries for breaking `has_schema_privilege` calls (issues #161, #129)

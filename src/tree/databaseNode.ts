@@ -3,7 +3,6 @@ import { INode } from "./INode";
 import { IConnection } from "../common/IConnection";
 import { TreeItem, TreeItemCollapsibleState } from "vscode";
 import { Database } from '../common/database';
-import { TableNode } from './tableNode';
 import { InfoNode } from './infoNode';
 import { SchemaNode } from './schemaNode';
 
@@ -42,9 +41,6 @@ export class DatabaseNode implements INode {
         AND has_schema_privilege(oid, 'CREATE, USAGE')
       ORDER BY nspname;`);
 
-      // return res.rows.map<TableNode>(table => {
-      //   return new TableNode(this.connection, table.name, table.is_table, table.schema);
-      // });
       return res.rows.map<SchemaNode>(schema => {
         return new SchemaNode(this.connection, schema.name);
       })

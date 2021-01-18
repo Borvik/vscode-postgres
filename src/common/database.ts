@@ -39,6 +39,8 @@ export interface TypeResults {
   fields?: FieldInfo[];
 }
 
+let queryCounter: number = 0;
+
 export class Database {
 
   // could probably be simplified, essentially matches Postgres' built-in algorithm without the char pointers
@@ -93,9 +95,20 @@ export class Database {
     return client;
   }
 
-  public static async runQuery(sql: string, editor: vscode.TextEditor, connectionOptions: IConnection) {
-    let uri = editor.document.uri.toString();
-    let title = path.basename(editor.document.fileName);
+  public static async runQuery(sql: string, editor: vscode.TextEditor, connectionOptions: IConnection, showInCurrentPanel: boolean = false) {
+    // let uri = editor.document.uri.toString();
+    // let title = path.basename(editor.document.fileName);
+    // let resultsUri = vscode.Uri.parse('postgres-results://' + uri);
+    let uri: string = '';
+    let title: string = '';
+    if (showInCurrentPanel) {
+      queryCounter++;
+      uri = `unnamed-query-${queryCounter}`;
+      title = `Unnamed Query ${queryCounter}`;
+    } else {
+      uri = editor.document.uri.toString();
+      title = path.basename(editor.document.fileName);
+    }
     let resultsUri = vscode.Uri.parse('postgres-results://' + uri);
 
     let connection: PgClient = null;
@@ -115,8 +128,10 @@ export class Database {
           }
         });
       });
-      await OutputChannel.displayResults(resultsUri, 'Results: ' + title, results);
-      vscode.window.showTextDocument(editor.document, editor.viewColumn);
+      await OutputChannel.displayResults(resultsUri, 'Results: ' + title, results, showInCurrentPanel);
+      if (!showInCurrentPanel) {
+        vscode.window.showTextDocument(editor.document, editor.viewColumn);
+      }
     } catch (err) {
       OutputChannel.appendLine(err);
       vscode.window.showErrorMessage(err.message);
