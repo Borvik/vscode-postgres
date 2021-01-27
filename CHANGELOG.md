@@ -3,6 +3,12 @@ All notable changes to the "vscode-postgres" extension will be documented in thi
 
 ## [Unreleased]
 
+## [1.1.17] - 2021-01-18
+### Fixed
+- Saving results to CSV, JSON, or XML when results have multiple columns with the same name - some columns were getting dropped (issue #164)
+  Now all columns _should_ be output.  For the case of JSON or XML, repeated names have an increment suffix to the name. For CSV columns are positional
+  and it uses the same name.
+
 ## [1.1.16] - 2021-01-18
 ### Added
 - Foreign table support

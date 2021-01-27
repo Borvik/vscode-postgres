@@ -52,10 +52,7 @@ export class saveResultCommand extends BaseCommand {
       let data = transformResult(results[resultIndex]);
       fileData = ser.render(data);
     } else if (selFormat === 'csv') {
-      let columns = {};
-      results[resultIndex].fields.forEach(field => {
-        columns[field.name] = field.name
-      });
+      let columns = transformColumns(results[resultIndex].fields);
 
       let csvError: any = false;
       fileData = await new Promise<string>((resolve) => {
@@ -88,21 +85,43 @@ export class saveResultCommand extends BaseCommand {
 }
 
 function transformResult(result: QueryResults) {
-  let trxFunc = transformData.bind(null, result.fields);
-  return result.rows.map(trxFunc);
+  let columns = transformColumns(result.fields);
+  return result.rows.map((row) => transformData(columns, row));
 }
 
-function transformData(fields, row) {
-  let newRow = {};
-  let fieldCounts = {};
-  fields.forEach((field, idx) => {
-    if (fieldCounts.hasOwnProperty(field)) {
-      fieldCounts[field.name]++;
-      newRow[field.name + '_' + fieldCounts[field.name]] = row[idx];
-    } else {
-      fieldCounts[field.name] = 0;
-      newRow[field.name] = row[idx];
-    }
+function transformData(fields: MappedField[], row: RowRecord): RowRecord {
+  let newRow: RowRecord = {};
+  fields.forEach(field => {
+    newRow[field.name] = row[field.index];
   });
   return newRow;
 }
+
+function transformColumns(fields: QueryResults['fields']) {
+  let transformedFields: MappedField[] = [];
+  let fieldCounts: any = {};
+  fields.forEach((field, idx) => {
+    if (fieldCounts.hasOwnProperty(field.name)) {
+      fieldCounts[field.name]++;
+      transformedFields.push({
+        ...field,
+        name: field.name + '_' + fieldCounts[field.name],
+        header: field.name,
+        key: field.name,
+        index: idx,
+      });
+    } else {
+      fieldCounts[field.name] = 0;
+      transformedFields.push({
+        ...field,
+        header: field.name,
+        key: field.name,
+        index: idx
+      });
+    }
+  });
+  return transformedFields;
+}
+
+type MappedField = QueryResults['fields'][0] & { header: string, index: number, key: string };
+type RowRecord = Record<string, any>;
