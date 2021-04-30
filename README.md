@@ -7,6 +7,7 @@ There is a language service that should keep at most a single connection open to
 It is possible there are some queries that won't run and report problems - even if they are completely valid (`DROP DATABASE` comes to mind).
 
 > *__Note__: PostgreSQL versions before 9.4 are not supported.*
+
 > *__Note__: AWS RedShift is _also_ not supported - there are information schema queries needed that just won't work there*
 
 ## Features
