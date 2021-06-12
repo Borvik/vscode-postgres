@@ -1,10 +1,10 @@
 import {
-  IPCMessageReader, IPCMessageWriter, createConnection, IConnection,
+  IPCMessageReader, IPCMessageWriter, createConnection, Connection,
   TextDocuments, InitializeResult,
   Diagnostic, DiagnosticSeverity, TextDocumentPositionParams,
   CompletionItem, CompletionItemKind,
   SignatureHelp, SignatureInformation, ParameterInformation, TextDocumentSyncKind
-} from 'vscode-languageserver';
+} from 'vscode-languageserver/node';
 import { PgClient } from '../common/connection';
 import * as fs from 'fs';
 import { Validator } from './validator';
@@ -85,7 +85,7 @@ let databaseCache: string[] = [];
  * 3. F5
   */
 
-let connection: IConnection = createConnection(new IPCMessageReader(process), new IPCMessageWriter(process));
+let connection: Connection = createConnection(new IPCMessageReader(process), new IPCMessageWriter(process));
 let dbConnection: PgClient = null,
     dbConnOptions: IDBConnection = null;
 
