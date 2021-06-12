@@ -13,19 +13,19 @@ export function disposeAll(disposables: vscode.Disposable[]) {
 
 export function generateResultsHtml(sourceUri: vscode.Uri, results: QueryResults[], state?: any) {
   let pageScript = getExtensionResourcePath('index.js');
-  let pageStyle = getExtensionResourcePath('style.css');
   const nonce = new Date().getTime() + '' + new Date().getMilliseconds();
 
   let html = `<!DOCTYPE html>
-  <html>
+  <html lang="en">
     <head>
-      <meta http-equiv="Content-type" content="text/html;charset=UTF-8" />
-      <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src vscode-resource: https: data:; media-src vscode-resource: https: data:; script-src 'nonce-${nonce}'; style-src vscode-resource: 'unsafe-inline' https: data:; font-src vscode-resource: https: data:;">
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <meta id="vscode-postgres-results-data"
         data-settings=""
         data-state="${JSON.stringify(state || {}).replace(/"/g, '&quot;')}" />
       <script src="${pageScript}" nonce="${nonce}"></script>
-      <base href="${sourceUri.with({scheme: 'vscode-resource'}).toString(true)}" />
+      
+      
       ${getStyles(nonce)}
     </head>
     <body class="vscode-body">
@@ -95,6 +95,23 @@ function getStyles(nonce) {
     
     table {
       border-collapse: collapse;
+    }
+
+    thead th {
+      position: sticky;
+      top: -1px;
+      background-color: var(--vscode-editor-background, var(--theme-background));
+    }
+
+    thead th::after {
+      content: '';
+      position: absolute;
+      top: -1px;
+      right: -1px;
+      left: -1px;
+      height: 100%;
+      border: 1px solid var(--vscode-panel-border);
+      pointer-events: none;
     }
     
     th, td {

@@ -3,6 +3,13 @@ All notable changes to the "vscode-postgres" extension will be documented in thi
 
 ## [Unreleased]
 
+## [1.1.18] - 2021-06-12
+### Fixed
+- Webview results not displaying
+
+### Added
+- Sticky table headers
+
 ## [1.1.17] - 2021-01-18
 ### Fixed
 - Saving results to CSV, JSON, or XML when results have multiple columns with the same name - some columns were getting dropped (issue #164)

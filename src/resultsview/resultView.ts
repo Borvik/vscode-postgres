@@ -23,7 +23,7 @@ export class ResultView {
 	public readonly onDidChangeViewState = this._onDidChangeViewStateEmitter.event;
 
   public static async revive(webview: vscode.WebviewPanel, state: any): Promise<ResultView> {
-    const resource = vscode.Uri.parse(state.resource);
+    const resource = vscode.Uri.parse(state?.resource);
 
     const view = new ResultView(webview, resource);
 
