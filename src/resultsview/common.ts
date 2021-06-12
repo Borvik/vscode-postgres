@@ -11,8 +11,8 @@ export function disposeAll(disposables: vscode.Disposable[]) {
   }
 }
 
-export function generateResultsHtml(sourceUri: vscode.Uri, results: QueryResults[], state?: any) {
-  let pageScript = getExtensionResourcePath('index.js');
+export function generateResultsHtml(webview: vscode.Webview, sourceUri: vscode.Uri, results: QueryResults[], state?: any) {
+  let pageScript = getExtensionResourcePath('index.js', webview);
   const nonce = new Date().getTime() + '' + new Date().getMilliseconds();
 
   let html = `<!DOCTYPE html>
@@ -24,8 +24,6 @@ export function generateResultsHtml(sourceUri: vscode.Uri, results: QueryResults
         data-settings=""
         data-state="${JSON.stringify(state || {}).replace(/"/g, '&quot;')}" />
       <script src="${pageScript}" nonce="${nonce}"></script>
-      
-      
       ${getStyles(nonce)}
     </head>
     <body class="vscode-body">
@@ -130,13 +128,12 @@ function getStyles(nonce) {
     }
   </style>`;
 }
-function getExtensionResourcePath(mediaFile: string): string {
+function getExtensionResourcePath(mediaFile: string, webview: vscode.Webview): string {
   let filePath = path.join('media', mediaFile);
   let absFilePath = Global.context.asAbsolutePath(filePath);
   let uri = vscode.Uri.file(absFilePath);
-  uri = uri.with({ scheme: 'vscode-resource' });
-  let url = uri.toString();
-  return url;
+  let url = webview.asWebviewUri(uri);
+  return url.toString();
 }
 
 function getResultsTables(results: QueryResults[]): string {

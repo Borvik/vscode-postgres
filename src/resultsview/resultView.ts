@@ -131,7 +131,7 @@ export class ResultView {
     this.forceUpdate = false;
 
     // build HTML for results
-    let html = generateResultsHtml(resource, results, this.state);
+    let html = generateResultsHtml(this.editor.webview, resource, results, this.state);
     this.editor.title = ResultView.getViewTitle(resource);
     this.editor.webview.options = ResultView.getWebviewOptions(resource);
     this.editor.webview.html = html;

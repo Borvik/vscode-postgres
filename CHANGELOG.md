@@ -2,6 +2,8 @@
 All notable changes to the "vscode-postgres" extension will be documented in this file.
 
 ## [Unreleased]
+### Updated
+- Updated webview URL creation for local files
 
 ## [1.1.18] - 2021-06-12
 ### Fixed
