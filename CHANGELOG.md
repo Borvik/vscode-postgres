@@ -2,6 +2,11 @@
 All notable changes to the "vscode-postgres" extension will be documented in this file.
 
 ## [Unreleased]
+
+## [1.1.19] - 2021-10-16
+### Added
+- Query timer and running message by Jakub Szostak
+
 ### Updated
 - Updated webview URL creation for local files
 
