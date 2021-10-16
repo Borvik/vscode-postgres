@@ -5,6 +5,7 @@ import * as path from 'path';
 import { PgClient } from './connection';
 import { IConnection } from "./IConnection";
 import { OutputChannel } from './outputChannel';
+import { performance } from 'perf_hooks';
 
 export interface FieldInfo {
   columnID: number;
@@ -95,6 +96,34 @@ export class Database {
     return client;
   }
 
+  private static getDurationText(milliseconds: number): string {
+    let sec = milliseconds / 1000.0;
+    // More than 60 sec -> 2 min 5 sec
+    if (sec > 60) {
+      let min = Math.floor(sec / 60);
+      sec = Math.round(sec - min * 60);
+      return String(min) + ' min ' + String(Math.round(sec)) + 'sec';
+    } 
+    // More than 10 sec -> 33 sec.
+    if (sec >= 20) {
+      sec = Math.round(sec);
+      return String(sec) + ' sec';
+    }
+    // More than 2 sec -> 3.3 sec.
+    else if (sec > 2) {
+      sec = Math.round(sec * 10) / 10;
+      return String(sec) + ' sec';
+    }
+    // More than 0.1 sec -> 0.33 sec.
+    else if (sec > 0.1) {
+      sec = Math.round(sec * 100) / 100;
+      return String(sec) + ' sec';
+    }
+    // Full precision
+    sec = Math.round(sec * 1000) / 1000;
+    return String(sec) + ' sec';
+  }
+
   public static async runQuery(sql: string, editor: vscode.TextEditor, connectionOptions: IConnection, showInCurrentPanel: boolean = false) {
     // let uri = editor.document.uri.toString();
     // let title = path.basename(editor.document.fileName);
@@ -111,14 +140,19 @@ export class Database {
     }
     let resultsUri = vscode.Uri.parse('postgres-results://' + uri);
 
+    OutputChannel.displayMessage(resultsUri, 'Results: ' + title, 'Waiting for the query to complete...', showInCurrentPanel);
     let connection: PgClient = null;
     try {
+      let startTime = performance.now();
       connection = await Database.createConnection(connectionOptions);
       const typeNamesQuery = `select oid, format_type(oid, typtypmod) as display_type, typname from pg_type`;
       const types: TypeResults = await connection.query(typeNamesQuery);
       const res: QueryResults | QueryResults[] = await connection.query({ text: sql, rowMode: 'array' });
       const results: QueryResults[] = Array.isArray(res) ? res : [res];
+      let durationText = Database.getDurationText(performance.now() - startTime);
 
+      OutputChannel.displayMessage(resultsUri, 'Results: ' + title, 'Query completed in ' + durationText + '. Building results view...', showInCurrentPanel);
+      vscode.window.showInformationMessage('Query completed in ' + durationText + '.');
       results.forEach((result) => {
         result.fields.forEach((field) => {
           let type = types.rows.find((t) => t.oid === field.dataTypeID);
@@ -128,11 +162,12 @@ export class Database {
           }
         });
       });
-      await OutputChannel.displayResults(resultsUri, 'Results: ' + title, results, showInCurrentPanel);
+      OutputChannel.displayResults(resultsUri, 'Results: ' + title, results, showInCurrentPanel);
       if (!showInCurrentPanel) {
         vscode.window.showTextDocument(editor.document, editor.viewColumn);
       }
     } catch (err) {
+      OutputChannel.displayMessage(resultsUri, 'Results: ' + title, 'ERROR: ' + err.message, showInCurrentPanel);
       OutputChannel.appendLine(err);
       vscode.window.showErrorMessage(err.message);
       // vscode.window.showErrorMessage(err.message, "Show Console").then((button) => {

@@ -20,6 +20,16 @@ export class OutputChannel {
     Global.ResultManager.showResults(uri, viewColumn, res);
   }
 
+  public static displayMessage(uri: vscode.Uri, title: string, message: string, showInCurrentPanel: boolean = false): void {
+    let msgRes = new Array<QueryResults>();
+    msgRes.push({
+      rowCount: 0,
+      command: 'ext-message',
+      message: message
+    });
+    this.displayResults(uri, title, msgRes, showInCurrentPanel);
+  }
+
   private static getViewColumn(): vscode.ViewColumn {
     const resourceColumn = (vscode.window.activeTextEditor && vscode.window.activeTextEditor.viewColumn) || vscode.ViewColumn.One;
     return resourceColumn + 1;
