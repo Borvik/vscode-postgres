@@ -102,19 +102,16 @@ export class Database {
     if (sec > 60) {
       let min = Math.floor(sec / 60);
       sec = Math.round(sec - min * 60);
-      OutputChannel.appendLine(String(min) + 'min ' + String(sec) + 'sec  ' + String(milliseconds));
       return String(min) + ' min ' + String(Math.round(sec)) + 'sec';
     } 
     // More than 10 sec -> 33 sec.
     if (sec >= 20) {
       sec = Math.round(sec);
-      OutputChannel.appendLine(String(sec) + 'sec  ' + String(milliseconds));
       return String(sec) + ' sec';
     }
     // More than 2 sec -> 3.3 sec.
     else if (sec > 2) {
       sec = Math.round(sec * 10) / 10;
-      OutputChannel.appendLine(String(sec) + 'sec  ' + String(milliseconds));
       return String(sec) + ' sec';
     }
     // More than 0.1 sec -> 0.33 sec.
@@ -124,7 +121,6 @@ export class Database {
     }
     // Full precision
     sec = Math.round(sec * 1000) / 1000;
-    OutputChannel.appendLine(String(sec) + 'sec  ' + String(milliseconds));
     return String(sec) + ' sec';
   }
 
