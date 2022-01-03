@@ -39,7 +39,7 @@ export class deleteConnectionCommand extends BaseCommand {
     delete connections[key];
     
     await Global.context.globalState.update(Constants.GlobalStateKey, connections);
-    await Global.keytar.deletePassword(Constants.ExtensionId, key);
+    await Global.context.secrets.delete(key);
 
     PostgreSQLTreeDataProvider.getInstance().refresh();
     vscode.window.showInformationMessage('Connection Deleted');

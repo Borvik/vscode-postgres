@@ -1,7 +1,6 @@
 'use strict';
 import * as keytarType from 'keytar';
 import * as vscode from 'vscode';
-import { IConnection } from './IConnection';
 import { Constants } from './constants';
 import { ResultsManager } from '../resultsview/resultsManager';
 

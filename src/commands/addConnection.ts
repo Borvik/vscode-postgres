@@ -54,7 +54,7 @@ export class addConnectionCommand extends BaseCommand {
 
     connections[id].hasPassword = !!state.password;
     if (connections[id].hasPassword) {
-      await Global.keytar.setPassword(Constants.ExtensionId, id, state.password);
+      await Global.context.secrets.store(id, state.password);
     }
 
     await tree.context.globalState.update(Constants.GlobalStateKey, connections);
