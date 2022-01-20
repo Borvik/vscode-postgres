@@ -3,6 +3,9 @@ All notable changes to the "vscode-postgres" extension will be documented in thi
 
 ## [Unreleased]
 
+## [1.4.0] - 2022-01-19
+- Keytar migration tool. Previously, keytar was used manually via `${vscode.env.appRoot}/node_modules` - this is a switch to using the secrets api, but needed a migration to do so.
+
 ## [1.3.0] - 2022-01-03 (prerelease)
 - Switch to pre-release/release version numbers `major.EVEN.patch` for release and `major.ODD.patch` for pre-release
 - Keytar migration tool. Previously, keytar was used manually via `${vscode.env.appRoot}/node_modules` - this is a switch to using the secrets api, but needed a migration to do so.
