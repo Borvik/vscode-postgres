@@ -253,6 +253,7 @@ function formatFieldValue(field: FieldInfo, value: any): string {
       break;
     case 'timestamptz': value = value.toJSON().toString(); break;
     case 'text': canTruncate = true; break;
+    case 'bytea': value = '\\x' + value.toString('hex').toUpperCase(); break;
     default:
       value = value.toString();
   }
