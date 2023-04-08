@@ -5,6 +5,7 @@ import * as csv from 'csv-stringify';
 import { SaveTableQuickPickItem } from "../common/IConnQuickPick";
 import { Global } from "../common/global";
 import { QueryResults } from "../common/database";
+import { formatFieldValue } from "../common/formatting";
 
 export class saveResultCommand extends BaseCommand {
   async run(uri: vscode.Uri) {
@@ -62,6 +63,11 @@ export class saveResultCommand extends BaseCommand {
           cast: {
             boolean: (value: boolean):string => {
               return value ? 'true' : 'false';
+            },
+            date: (value: Date, context: any) => {
+              if (context.header) return value as unknown as string;
+              let fieldInfo = results[resultIndex].fields![context.index];
+              return formatFieldValue(fieldInfo, value);
             }
           }
         }, (err, output: string) => {
@@ -92,7 +98,7 @@ function transformResult(result: QueryResults) {
 function transformData(fields: MappedField[], row: RowRecord): RowRecord {
   let newRow: RowRecord = {};
   fields.forEach(field => {
-    newRow[field.name] = row[field.index];
+    newRow[field.name] = formatFieldValue(field, row[field.index]);
   });
   return newRow;
 }
