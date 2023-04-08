@@ -226,6 +226,7 @@ async function loadCompletionCache(connectionOptions: IDBConnection) {
               AND n.nspname not in ('information_schema', 'pg_catalog', 'pg_toast')
               AND n.nspname not like 'pg_temp_%'
               AND n.nspname not like 'pg_toast_temp_%'
+              AND c.relnatts > 0
               AND has_schema_privilege(n.oid, 'USAGE') = true
               AND has_table_privilege(quote_ident(n.nspname) || '.' || quote_ident(c.relname), 'SELECT, INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER') = true
             union all
