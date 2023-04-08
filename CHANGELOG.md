@@ -3,6 +3,11 @@ All notable changes to the "vscode-postgres" extension will be documented in thi
 
 ## [Unreleased]
 
+## [1.4.1] - 2023-04-08
+- Make intellisense ignore tables that have 0 columns - thanks @polmonso.
+- Fixed csv exporting of timestamps. Fixes issue #114.
+- Added hex formatting for `bytea` columns - thanks @jragingfury.
+
 ## [1.4.0] - 2022-01-19
 - Keytar migration tool. Previously, keytar was used manually via `${vscode.env.appRoot}/node_modules` - this is a switch to using the secrets api, but needed a migration to do so.
 
