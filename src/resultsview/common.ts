@@ -223,7 +223,7 @@ function generateSelectTableResult(result: QueryResults): string {
     for (const row of result.rows) {
       html += `<tr><th class="row-header">${rowIndex++}</th>`;
       result.fields.forEach((field, idx) => {
-        let formatted = formatFieldValue(field, row[idx]);
+        let formatted = formatFieldValue(field, row[idx], false);
         html += `<td class="${field.format}-field">${formatted ? formatted : ''}</td>`;
       });
       html += `</tr>`;

@@ -3,6 +3,9 @@ All notable changes to the "vscode-postgres" extension will be documented in thi
 
 ## [Unreleased]
 
+## [1.4.2] - 2023-04-14
+- Fix for JSON export formatting. Fixes issue #220
+
 ## [1.4.1] - 2023-04-08
 - Make intellisense ignore tables that have 0 columns - thanks @polmonso.
 - Fixed csv exporting of timestamps. Fixes issue #114.

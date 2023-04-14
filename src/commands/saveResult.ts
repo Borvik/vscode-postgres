@@ -41,7 +41,7 @@ export class saveResultCommand extends BaseCommand {
 
     let fileData: string = null;
     if (selFormat === 'json') {
-      let data = transformResult(results[resultIndex]);
+      let data = transformResult(results[resultIndex], true);
       fileData = JSON.stringify(data, null, 2);
     } else if (selFormat === 'xml') {
       var ser = new EasyXml({
@@ -50,7 +50,7 @@ export class saveResultCommand extends BaseCommand {
         dateFormat: 'ISO',
         manifest: true
       });
-      let data = transformResult(results[resultIndex]);
+      let data = transformResult(results[resultIndex], true);
       fileData = ser.render(data);
     } else if (selFormat === 'csv') {
       let columns = transformColumns(results[resultIndex].fields);
@@ -67,7 +67,7 @@ export class saveResultCommand extends BaseCommand {
             date: (value: Date, context: any) => {
               if (context.header) return value as unknown as string;
               let fieldInfo = results[resultIndex].fields![context.index];
-              return formatFieldValue(fieldInfo, value);
+              return formatFieldValue(fieldInfo, value, true);
             }
           }
         }, (err, output: string) => {
@@ -90,15 +90,15 @@ export class saveResultCommand extends BaseCommand {
   }
 }
 
-function transformResult(result: QueryResults) {
+function transformResult(result: QueryResults, raw: boolean) {
   let columns = transformColumns(result.fields);
-  return result.rows.map((row) => transformData(columns, row));
+  return result.rows.map((row) => transformData(columns, row, raw));
 }
 
-function transformData(fields: MappedField[], row: RowRecord): RowRecord {
+function transformData(fields: MappedField[], row: RowRecord, raw: boolean): RowRecord {
   let newRow: RowRecord = {};
   fields.forEach(field => {
-    newRow[field.name] = formatFieldValue(field, row[field.index]);
+    newRow[field.name] = formatFieldValue(field, row[field.index], raw);
   });
   return newRow;
 }

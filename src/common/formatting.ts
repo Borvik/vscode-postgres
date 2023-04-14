@@ -1,8 +1,11 @@
 import { FieldInfo } from './database';
 import { Global } from './global';
 
-export function formatFieldValue(field: FieldInfo, value: any): string {
-  if (value === null) return `<i>null</i>`;
+export function formatFieldValue(field: FieldInfo, value: any, raw: boolean): string {
+  if (value === null) {
+    if (raw) return value;
+    return `<i>null</i>`;
+  }
   if (typeof value === typeof undefined) return '';
 
   let canTruncate: boolean = false;
@@ -13,10 +16,12 @@ export function formatFieldValue(field: FieldInfo, value: any): string {
     case 'jsonb':
     case 'point':
     case 'circle':
-      if (Global.Configuration.get<boolean>("prettyPrintJSONfields"))
-        value = JSON.stringify(value, null, 2);
-      else
-        value = JSON.stringify(value);
+      if (!raw) {
+        if (Global.Configuration.get<boolean>("prettyPrintJSONfields"))
+          value = JSON.stringify(value, null, 2);
+        else
+          value = JSON.stringify(value);
+      }
       break;
     case 'date':
       value = IsoDate(value); break;
@@ -24,7 +29,12 @@ export function formatFieldValue(field: FieldInfo, value: any): string {
     case 'text': canTruncate = true; break;
     case 'bytea': value = '\\x' + value.toString('hex').toUpperCase(); break;
     default:
-      value = value.toString();
+      if (!raw) {
+        value = value.toString();
+      }
+  }
+  if (raw) {
+    return value;
   }
   let formatted = htmlEntities(value);
   if (canTruncate) {
