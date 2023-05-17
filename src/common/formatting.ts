@@ -26,6 +26,7 @@ export function formatFieldValue(field: FieldInfo, value: any, raw: boolean): st
     case 'date':
       value = IsoDate(value); break;
     case 'timestamptz': value = value.toJSON().toString(); break;
+    case 'timestamp': value = IsoDateTimeNoTz(value); break;
     case 'text': canTruncate = true; break;
     case 'bytea': value = '\\x' + value.toString('hex').toUpperCase(); break;
     default:
@@ -44,11 +45,39 @@ export function formatFieldValue(field: FieldInfo, value: any, raw: boolean): st
   return formatted;
 }
 
+function padNumber(value: number, numChars: number, padStr: string) {
+  return value.toString().padStart(numChars, padStr);
+}
+
 function IsoDate(d: Date) {
   let year = d.getUTCFullYear().toString();
   let month = (d.getUTCMonth() + 1).toString();
   let day = d.getUTCDate().toString();
   return year + '-' + month.padStart(2, '0') + '-' + day.padStart(2, '0');
+}
+
+function IsoTimeNoTz(d: Date) {
+  let hours = d.getHours();
+  let minutes = d.getMinutes();
+  let seconds = d.getSeconds();
+  let milliseconds = d.getMilliseconds();
+
+  let isoFormat = `T${padNumber(hours, 2, '0')}`;
+  if (minutes || seconds || milliseconds) {
+    isoFormat += `:${padNumber(minutes, 2, '0')}`;
+  }
+  if (seconds || milliseconds) {
+    isoFormat += `:${padNumber(seconds, 2, '0')}`;
+  }
+  if (milliseconds) {
+    isoFormat += `.${padNumber(milliseconds, 2, '0')}`;
+  }
+  return isoFormat;
+}
+
+function IsoDateTimeNoTz(d: Date) {
+  // '2023-05-17T10:28:23.505Z'
+  return `${IsoDate(d)}${IsoTimeNoTz(d)}`
 }
 
 function htmlEntities(str: string): string {
