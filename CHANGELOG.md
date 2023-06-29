@@ -2,6 +2,8 @@
 All notable changes to the "vscode-postgres" extension will be documented in this file.
 
 ## [Unreleased]
+- Turn off parsing of pg types `date`, `timestamp`, and `timestamptz` for more consistent formatting. Should fix #223 and #219.
+- Removes keytar to SecretStorage API migration code and remove references to keytar. Fixes: #230.
 
 ## [1.4.2] - 2023-04-14
 - Fix for JSON export formatting. Fixes issue #220
