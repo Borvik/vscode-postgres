@@ -45,7 +45,7 @@ export class EditorState {
   }
 
   public static async setNonActiveConnection(doc: vscode.TextDocument, newConn: IConnection) {
-    if (!doc && !doc.uri) return;
+    if (!doc || !doc.uri) return;
     if (!newConn) {
       newConn = await EditorState.getDefaultConnection();
     }
