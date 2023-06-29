@@ -445,7 +445,6 @@
     "build-preview": "npx webpack --mode production"
   },
   "devDependencies": {
-    "@types/keytar": "^4.4.2",
     "@types/mocha": "^2.2.42",
     "@types/node": "^12.12.68",
     "@types/pg": "^7.14.4",
@@ -460,6 +459,7 @@
     "csv-stringify": "^5.6.2",
     "easyxml": "^2.0.1",
     "pg": "^8.6.0",
+    "postgres-array": "^3.0.2",
     "uuid": "^8.3.2",
     "vscode-languageclient": "^7.0.0",
     "vscode-languageserver": "^7.0.0",

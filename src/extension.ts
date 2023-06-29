@@ -58,25 +58,6 @@ export async function activate(context: vscode.ExtensionContext) {
   //   await EditorState.setNonActiveConnection(doc, null);
   //   EditorState.getInstance().onDidChangeActiveTextEditor(vscode.window.activeTextEditor);
   // }
-
-  // prepare for dropping of manual keytar usage
-  const migratedPassword = context.globalState.get<boolean | undefined>('postgresql.connections.pwd-migrated');
-  if (!migratedPassword) {
-    const connections = context.globalState.get<{[key: string]: IConnection}>(Constants.GlobalStateKey);
-    if (connections) {
-      for (const id of Object.keys(connections)) {
-        let connection = Object.assign({}, connections[id]);
-        if (connection.hasPassword || !connection.hasOwnProperty('hasPassword')) {
-          let pwd = await Global.keytar.getPassword(Constants.ExtensionId, id);
-          if (typeof pwd !== 'undefined' && pwd !== null) {
-            await context.secrets.store(id, pwd);
-            await Global.keytar.deletePassword(Constants.ExtensionId, id);
-          }
-        }
-      }
-    }
-    await context.globalState.update('postgresql.connections.pwd-migrated', true);
-  }
 }
 
 // this method is called when your extension is deactivated
