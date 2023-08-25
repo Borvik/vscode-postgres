@@ -54,6 +54,11 @@
           "default": "",
           "description": "The default database on the default connection to use"
         },
+        "vscode-postgres.queryMethod": {
+          "type": "boolean",
+          "default": false,
+          "description": "Run query from line, without selecting"
+        },
         "vscode-postgres.showExplorer": {
           "type": "boolean",
           "default": true,
