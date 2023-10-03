@@ -5,5 +5,10 @@
     },
     "search.exclude": {
         "out": true // set this to false to include "out" folder in search results
-    }
+    },
+    "spellright.language": [
+      "en",
+    ],
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true
 }
