@@ -145,6 +145,7 @@ async function setupDBConnection(connectionOptions: IDBConnection, uri: string):
         password: connectionOptions.password,
         port: connectionOptions.port,
         database: 'postgres',
+        schema: '',
         multipleStatements: connectionOptions.multipleStatements,
         certPath: connectionOptions.certPath,
         ssl: connectionOptions.ssl
@@ -199,6 +200,7 @@ async function loadCompletionCache(connectionOptions: IDBConnection) {
 
   try {
     if (connectionOptions.database) {
+      let schema = (typeof connectionOptions.schema === 'string' && connectionOptions.schema.length) ? connectionOptions.schema : false;
       /*
       SELECT tablename as name, true as is_table FROM pg_tables WHERE schemaname not in ('information_schema', 'pg_catalog')
       union all
@@ -223,6 +225,7 @@ async function loadCompletionCache(connectionOptions: IDBConnection) {
               JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
             WHERE
               c.relkind = 'r'
+              ${schema? "AND n.nspname = '"+schema+"'" : ''}
               AND n.nspname not in ('information_schema', 'pg_catalog', 'pg_toast')
               AND n.nspname not like 'pg_temp_%'
               AND n.nspname not like 'pg_toast_temp_%'
@@ -240,6 +243,7 @@ async function loadCompletionCache(connectionOptions: IDBConnection) {
               JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace
             WHERE
               c.relkind in ('v', 'm')
+              ${schema? "AND n.nspname = '"+schema+"'" : ''}
               AND n.nspname not in ('information_schema', 'pg_catalog', 'pg_toast')
               AND n.nspname not like 'pg_temp_%'
               AND n.nspname not like 'pg_toast_temp_%'

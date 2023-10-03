@@ -6,6 +6,7 @@ export interface IConnection {
   hasPassword?: boolean;
   readonly port: number;
   readonly database?: string;
+  schema?: string;
   multipleStatements?: boolean;
   readonly certPath?: string;
   ssl?: any;

@@ -47,11 +47,13 @@ export class selectConnectionCommand extends BaseCommand {
       }
       EditorState.connection = connection;
       await vscode.commands.executeCommand('vscode-postgres.selectDatabase');
+      await vscode.commands.executeCommand('vscode-postgres.selectSchema');
       return;
     }
 
     let result = await vscode.commands.executeCommand('vscode-postgres.addConnection');
     if (!result) return;
     await vscode.commands.executeCommand('vscode-postgres.selectDatabase');
+    await vscode.commands.executeCommand('vscode-postgres.selectSchema');
   }
 }

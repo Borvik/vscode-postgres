@@ -84,3 +84,4 @@ This extension contributes the following settings:
 * `vscode-postgres.virtualFolders`: set to array of virtual folders to be displayed under schema. Supported values for virtual folders are `functions`. Set to `null` or empty array `[]` to disable virtual folders.
 * `vscode-postgres.defaultConnection`: set the default connection (by name) that should be used for any file.
 * `vscode-postgres.defaultDatabase`: set the default database on the default connection that should be used for any file (must exist on server).
+* `vscode-postgres.defaultSchema`: set the default schema on the default connection that should be used for any file (must exist in the database). Skip to use public and all other schemas.

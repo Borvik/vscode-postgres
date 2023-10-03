@@ -54,6 +54,11 @@
           "default": "",
           "description": "The default database on the default connection to use"
         },
+        "vscode-postgres.defaultSchema": {
+          "type": "string",
+          "default": "",
+          "description": "The default schema on the default connection to use (empty to use all)"
+        },
         "vscode-postgres.showExplorer": {
           "type": "boolean",
           "default": true,

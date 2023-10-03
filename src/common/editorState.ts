@@ -81,6 +81,12 @@ export class EditorState {
       }
     }
 
+    // optional schema
+    let defaultSchema = Global.Configuration.get<string>("defaultSchema");
+    if (typeof defaultSchema === 'string' && defaultSchema.length) {
+      connection.schema = defaultSchema;
+    }
+
     let defaultDatabase = Global.Configuration.get<string>("defaultDatabase");
     if (defaultDatabase) {
       const conn = await Database.createConnection(connection, 'postgres');
