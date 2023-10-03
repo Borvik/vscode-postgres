@@ -64,6 +64,7 @@ export class Database {
       password: connection.password,
       port: connection.port,
       database: dbname,
+      schema: connection.schema,
       multipleStatements: connection.multipleStatements,
       certPath: connection.certPath
     };
@@ -72,6 +73,7 @@ export class Database {
   public static async createConnection(connection: IConnection, dbname?: string): Promise<PgClient> {
     const connectionOptions: any = Object.assign({}, connection);
     connectionOptions.database = dbname ? dbname : connection.database;
+    connectionOptions.schema = connection.schema;
     if (connectionOptions.certPath && fs.existsSync(connectionOptions.certPath)) {
       connectionOptions.ssl = {
         ca: fs.readFileSync(connectionOptions.certPath).toString(),
