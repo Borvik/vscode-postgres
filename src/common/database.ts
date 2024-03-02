@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import * as vscode from 'vscode';
 import * as path from 'path';
+import {execSync} from 'child_process';
 // import { Pool, Client, types, ClientConfig } from 'pg';
 import { PgClient } from './connection';
 import { IConnection } from "./IConnection";
@@ -65,7 +66,8 @@ export class Database {
       port: connection.port,
       database: dbname,
       multipleStatements: connection.multipleStatements,
-      certPath: connection.certPath
+      certPath: connection.certPath,
+      passwordGenerationCommand: connection.passwordGenerationCommand,
     };
   }
 
@@ -84,7 +86,21 @@ export class Database {
     }
 
     let client = new PgClient(connectionOptions);
-    await client.connect();
+    try {
+      await client.connect();
+    } catch (err) {
+      if (connection.passwordGenerationCommand) {
+        try {
+            const password = execSync(connection.passwordGenerationCommand, { encoding: 'utf-8' });
+            connectionOptions.password = password.trim();
+            client = new PgClient(connectionOptions);
+            await client.connect();
+        } catch (error) {
+          throw error
+        }
+      }
+    
+    }
     const versionRes = await client.query(`SELECT current_setting('server_version_num') as ver_num;`);
     /*
     return res.rows.map<ColumnNode>(column => {

@@ -9,4 +9,5 @@ export interface IConnection {
   multipleStatements?: boolean;
   readonly certPath?: string;
   ssl?: any;
+  readonly passwordGenerationCommand?: string;
 }
